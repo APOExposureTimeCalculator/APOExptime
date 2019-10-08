@@ -14,3 +14,13 @@ class Instrument:
         self.efficiency = 
         self.readout_noise = 
         self.filter_wavelengths =
+
+# How to read our data files:
+from astropy.io import ascii
+data = ascii.read("test.data")
+values = data["col1"]
+
+rogers_mom = values[0]
+hasan = values[1]
+
+print(rogers_mom, hasan)
