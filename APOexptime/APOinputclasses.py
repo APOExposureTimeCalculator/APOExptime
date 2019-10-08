@@ -14,5 +14,16 @@ class Sky:
         
         
 class Target:
-    def __init__(self, mag, SED = None, Temp = None)
+    def __init__(self, mag, SED = None, Temp = 5778, location):
+        self.mag = mag
+        self.SED = SED
+        self.temp = Temp
         
+    def starSED(self):
+        if self.SED != None:
+            #scale SED with magnitude
+        else:
+            self.temp #use temperature in planck function then scale by magnitude
+        
+class Observation:
+    def __init__(self, SN, )
