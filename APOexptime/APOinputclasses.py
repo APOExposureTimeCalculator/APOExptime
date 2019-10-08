@@ -26,7 +26,7 @@ class Target:
             self.temp #use temperature in planck function then scale by magnitude
         
 class Observation:
-    def __init__(self, SN, time, airmass):
+    def __init__(self, SN, time, airmass = None, target, sky, instrument, telescope):
         
         
         
