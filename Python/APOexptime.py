@@ -11,12 +11,12 @@ import glob
 class Instrument:
     def __init__(self, Instr_name):
         
-        para = ascii.read(Instr_name +"/"+Instr_name + '_param.data')
+        para = ascii.read('data/apo3_5m/'+Instr_name +"/"+Instr_name + '_param.data')
         
-        efficiency = ascii.read(Instr_name +"/"+Instr_name + '_eff.data')
+        efficiency = ascii.read('data/apo3_5m/'+Instr_name +"/"+Instr_name + '_eff.data')
         
-        f = glob.glob(Instr_name+ '/' + '*filter.data')
-        for i, row in enumerate(f):
+        f = glob.glob('data/apo3_5m/'+Instr_name+ '/' + '*filter.data')
+        for i in len(int(para['FilterNum'])):
             filt = ascii.read(row)
             name = row[row.find('filter')-1]+'filter'
             setattr(Instrument, name, filt)
