@@ -1,0 +1,192 @@
+This file contains the docstrings for all Classes with their attributes and methods, along with docstrings for each method/function
+
+class inputs:
+    """
+    This is a class for containing all inputs and methods for calculating several inputs such as pixel scale and Fλ . init function auto runs pixel scale method and runs the instrument method corresponding to instrument used
+      
+	Attributes:
+		SN (int): Desired signal to noise.
+		seeing (int): Seeing in arcseconds.
+		LunarPhase (double): Phase of moon measured as number between 0 and 1	
+		airmass (double): Airmass being looked through
+		Instrument_used (str): name of instrument used
+		pixel_scale (int): arcseconds per pixel
+		Target_mag (double): magnitude of target
+		mag_system(str): define mag system used in target mag
+		sed(symbolic function): equation for the spectral energy distribution
+		F_lambda (symbolic function): equation that contains flux of star as a function of    lambda
+
+	Methods:
+		__init__
+		pixel_scale
+		f_lambda
+		sed_temp
+	  
+    """
+
+def  __init__(self, SN, seeing, lunar_phase, airmass, instrument_used)
+“””Initialization function for input class. Takes class inputs and sets attributes accordingly. It also calls the instrument method corresponding to the instrument used input, this sets the attributes of the instrument class to equal the values of the desired instrument so that further functions can pull those attributes for calculations
+	Parameters :
+		SN (int): Desired signal to noise.
+		seeing (int): Seeing in arcseconds.
+		LunarPhase (double): Phase of moon measured as number between 0 and 1	
+		airmass (double): Airmass being looked through
+		Instrument_used (str): name of instrument used
+“””
+ 
+
+
+def pixel_scale(self,telescope, instrument):
+"""Function takes in focal length (from telescope.focal_length), pixel size (from instrument.pix_size), and returns pixel scale.
+	Parameters:
+		Telescope: object with telescope parameters
+		Instrument: object with instrument parameters
+	
+	Returns: 
+		float: pixel_scale
+
+	"""
+	
+def sed_temp(self, temp)
+”””
+Method that calculates the SED of an object (blackbody) using the planck function.
+
+	Input: temperature (kelvins)
+
+	Output: The spectral energy distribution of the object.
+”””
+
+
+def f_lambda(self):
+"""Function takes in magnitude system (from inputs.mag_system), target magnitude (from inputs.Target_mag), SED (from input.sed) and returns flux as a function of lambda.
+    Parameters:
+   	 Inputs: object with input parameters
+    
+    Returns:
+   	 Symbolic function: F_lambda
+
+    """
+
+
+Class telescope:
+“”” Class to contain all parameters related to the telescope. The idea for doing this is to help with organizing where variables are located and to allow for future changes to telescope system or adding other telescopes by only changing this class
+	Attributes:
+		area (double): Collecting area of telescope
+		focal_length (int): focal length of telescope
+		transmission (symbolic function): transmission coefficient function with respect to wavelength of telescope system. Is normalized to be from 0 to 1
+“””
+ 
+Class instrument:
+“”” Class to contain all parameters of the instruments. Contains a method for each instrument that when called sets the attributes of the class to equal the values/functions of that instrument
+	Attributes:
+		transmission (symbolic function): transmission coefficient function of instrument with respect to wavelength normalized to be from  0 to 1
+		det_eff (symbolic function): detector efficiency coefficient function of instrument with respect to wavelength normalized to be from  0 to 1
+		readout_noise (double): readout noise of instrument
+
+	Methods:
+		artic
+		dis
+		arces
+		nicfps
+		triplesec 
+“””
+
+
+Class processing:
+“”Class to contain the methods and resulting attributes from the 3 processing functions. Mainly defined to act as a container for these methods
+	Attributes:
+		db/dlambda 
+		N_pix
+		ds’/dlambda
+
+	Methods:
+		dBdlambda
+		N_pix
+		dSdlambda
+	“””
+
+def dBdlambda(input, instrument):
+“””Function takes lunar phase (from input.lunar_phase) and instrument transmission (from
+instrument.transmission), writes dB’/dlambda as a symbolic function 
+	Parameters:
+		Input: object with user inputs
+		Instrument: object with instrument parameters
+
+	Returns:
+		dBd_lambda (symbolic function): Background rate with respect to wavelength
+
+	“””
+
+
+def N_pix(input):
+“””Function takes pixel scale (from input.pixel_scale), seeing (from input.seeing), and airmass (from input.Airmass) and returns N_pix.
+	Parameters:
+		Input: object with user inputs
+
+	Returns:
+		float: N_pix
+
+	“””
+
+
+def dSdlambda(input, telescope, instrument):
+“””Function takes airmass, instrument used, and F_lambda (from input.airmass, input.instrument_choice, and input.F_lambda, respectively) as well as telescope transmission (from telescope.transmission) and instrument transmission and detector efficiency (from instrument.transmission and instrument.det_eff, respectively), writes dB’/dlambda as a symbolic function 
+	Parameters:
+		Input: object with user inputs
+		Telescope: object with telescope parameters
+		Instrument: object with instrument parameters
+
+	Returns:
+		dSd_lambda (symbolic function): Source rate with respect to wavelength
+
+	“””
+
+def t_lambda(telescope.area, instrument.readout_noise,inputs.SN,inputs.instrument_used,dBdlambda,N_pix,dSdlambda):
+”””
+Function that calculates the exposure time per wavelength. This function works by taking the desired signal to noise, and the other parameters involving S/N, and then solving for t based on the desired S/N
+
+	Inputs:
+		The area of the telescope 
+		The readout noise from the instrument used
+		The desired signal to noise ratio
+		The name of the instrument used
+		The background as a function of wavelength
+		The number of pixels 
+		And the source per wavelength
+
+	Output:
+		Exposure time per wavelength
+”””
+
+
+
+def Integration(t_lambda, lambda_lower,lambda_upper): 
+“””Function takes t_lambda and integrate over the entire spectrum i.e. all filters used and returns the total t. Several numerical integration techniques can be used such as Simpson’s rule, Gaussian quadrature or MC integration etc.
+
+	Inputs: 
+		Exposure time per wavelength
+		Lower wavelength	
+		Upper wavelength
+
+	Output: 
+		Total Exposure Time 
+
+
+Work Plan
+
+	Implementation:
+
+	Classes (input, telescope, instrument, intermediate) - Alexander
+
+	SED, F_lambda functions, pixel scale - Roger
+
+	dB’, dS’ functions - Bryson
+
+	Exp t function - Manny
+
+	Npix, Integration functions - Hasan
+
+
+	User Interface:
+
+	Web interface  - Everyone?
