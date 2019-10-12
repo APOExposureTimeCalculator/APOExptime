@@ -7,6 +7,7 @@ Created on Mon Oct  7 14:25:10 2019
 
 from astropy.io import ascii
 import glob
+from scipy import interpolate
 
 class Instrument:
     def __init__(self, Instr_name):
@@ -21,10 +22,21 @@ class Instrument:
             name = row[row.find('filter')-1]+'filter'
             setattr(Instrument, name, filt)
         
+        efficiency_wavelength=efficiency["col1"]
+        efficiency_percent=efficiency["col2"]/100  #divided by 100 to turn into decimal
+        filt_wavelength=f["col1"]
+        filt_throughput=f["col2"]
+        
+        efficiency_interpolated = interpolate.InterpolatedUnivariateSpline(
+                efficiency_wavelength, efficiency_percent)
+        filt_interpolated = interpolate.InterpolatedUnivariateSpline(
+                filt_wavelength, filt_throughput)
+
+        
         self.transmission = 
-        self.efficiency = 
+        self.efficiency = efficiency_interpolated
         self.readout_noise = 
-        self.filter_wavelengths =
+        self.filter_wavelengths = filt_interpolated
 
 # How to read our data files:
 
