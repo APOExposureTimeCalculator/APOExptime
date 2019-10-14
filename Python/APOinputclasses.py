@@ -27,6 +27,13 @@ class Target:
         
 class Observation:
     def __init__(self, SN, time, airmass = None, target, sky, instrument, telescope):
+        lambda1 = instrument.something
+        lambda2 = instrument.something
+        h= 6.626*10**(-27) #ergs/s
+        c=2.9979*10**(10) #cm/s
+        s_prime = target.SED.integral(lambda1,lambda2)/(h*c)*(lambda2**2-lambda1**2)/2*sky.skySED.integral(lambda1,lambda2)*
+                    instrument.efficiency.integral(lambda1,lambda2)*instrument.filter_wavelengths.integral(lambda1,lambda2)*
+                    telescope.efficiency.integral(lambda1,lambda2)
         
         
         
