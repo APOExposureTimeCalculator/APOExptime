@@ -1,7 +1,10 @@
 isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	Dispersion	FilterNum	Filters
 
-1.	15.	0.228	3.7	2.	N/A	1. 	hello
-							kjhsdjkh
+1.	15.	0.228	3.7	2.	N/A	5. 	gprime_filter.data
+							iprime_filter.data
+							rprime_filter.data
+							uprime_filter.data
+							zprime_filter.data
 
 
 
