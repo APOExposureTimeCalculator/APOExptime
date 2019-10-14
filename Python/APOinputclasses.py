@@ -33,7 +33,7 @@ class Observation:
         c=2.9979*10**(10) #cm/s
         s_prime = target.SED.integral(lambda1,lambda2)/(h*c)*(lambda2**2-lambda1**2)/2*sky.skySED.integral(lambda1,lambda2)*
                     instrument.efficiency.integral(lambda1,lambda2)*instrument.filter_wavelengths.integral(lambda1,lambda2)*
-                    telescope.efficiency.integral(lambda1,lambda2)
+                    telescope.transmission.integral(lambda1,lambda2)
         
         
         
