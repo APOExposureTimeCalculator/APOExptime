@@ -25,15 +25,31 @@ class Target:
         else:
             self.temp #use temperature in planck function then scale by magnitude
         
-class Observation:
-    def __init__(self, SN, time, airmass = None, target, sky, instrument, telescope):
-        lambda1 = instrument.something
-        lambda2 = instrument.something
+class Counts:
+    def __init__(self, airmass = 1, target, instrument, telescope):
+        integrate_range = instrument.gprime_range
+        filter_profile = instrument.gprime_filter
+        detector_qe = instrument.efficiency
+        telescope_transm = telescope.transmission
+        source = target.F_lambda
+        
+        interpolationrange = range(integrate_range[0], integrate_range[1])
         h= 6.626*10**(-27) #ergs/s
-        c=2.9979*10**(10) #cm/s
-        s_prime = target.SED.integral(lambda1,lambda2)/(h*c)*(lambda2**2-lambda1**2)/2*sky.skySED.integral(lambda1,lambda2)*
-                    instrument.efficiency.integral(lambda1,lambda2)*instrument.filter_wavelengths.integral(lambda1,lambda2)*
-                    telescope.transmission.integral(lambda1,lambda2)
+        c=2.9979*10**(18) #cm/s
+        s_integrade = s_integradeInterpolate([filter_profile, detector_qe, telescope_transm, source],  interpolationrange)
+        
+        s_prime = (1/(h*c))*s_integrade.integral(integrate_range[0], integrate_range[1])
+        
+        
+    def s_integradeInterpolate(self, functions, interpolation_range):
+        for i,f in enumerate(functions):
+            if i = 0:
+                x = np.ones(len(interpolation_range))
+            x = f(interpolation_range)*x
+            
+        return  interpolate.InterpolatedUnivariateSpline(interpolation_range, (x*interpolation_range))
+                
+        
         
         
         
