@@ -5,6 +5,10 @@ isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	D
 							rprime_filter.dat
 							uprime_filter.dat
 							zprime_filter.dat
-
+							Johnson_ufilt.dat
+							Johnson_bfilt.dat
+							Johnson_vfilt.dat
+							Johnson_rfilt.dat
+							Johnson_ifilt.dat
 
 
