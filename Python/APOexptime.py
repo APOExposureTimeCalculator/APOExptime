@@ -11,13 +11,13 @@ from scipy import interpolate
 class Instrument:
     def __init__(self, Instr_name):
         
-        para = ascii.read('data/apo3_5m/'+Instr_name +"/"+Instr_name + '_param.data')
+        para = ascii.read('../data/apo3_5m/'+Instr_name +"/"+Instr_name + '_param.data')
         
-        efficiency = ascii.read('data/apo3_5m/'+Instr_name +"/"+Instr_name + '_qe.data')
+        efficiency = ascii.read('../data/apo3_5m/'+Instr_name +"/"+Instr_name + '_qe.data')
         
       
         for row in para['Filters']:
-            filt = ascii.read('data/apo3_5m/'+Instr_name +"/"+row)
+            filt = ascii.read('../data/apo3_5m/'+Instr_name +"/"+row)
             data_name = row.split('.dat')[0]
             filt_wavelength=filt["col1"]
             filt_throughput=filt["col2"]
@@ -29,7 +29,7 @@ class Instrument:
             range_name = row.split('filter.dat')[0]+'range'
             setattr(Instrument, range_name, filt_range)
         
-        qefficiency_wavelength=efficiency["col1"]
+        qefficiency_wavelength=efficiency["col1"]*10 #multiplied by 10 to turn to angstroms
         qefficiency_percent=efficiency["col2"]/100  #divided by 100 to turn into decimal
 
         
