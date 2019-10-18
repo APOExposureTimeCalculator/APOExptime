@@ -2,7 +2,7 @@
 """
 Created on Tue Oct  8 15:13:34 2019
 
-@author: Alexander
+@author: Alexander, Bryson, Roger, Hassan, Manny
 """
 from synphot.models import BlackBody1D
 from synphot import units
@@ -42,34 +42,33 @@ class Target:
         x = sp_new(range(1000,9000) * u.AA, flux_unit= units.FLAM)
         self.F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000,9000), x)
         
-class Counts:
-        """Instantiates an object of the Instrument class.
-    
-    Args:
-        Instr_name(str): Name of Instrument to be used.
-        
-    Attributes:
-        efficiency(object): UnivariateInterpolatedSpline of instrument efficiency.
-        readout_noise(float): Value of instrument readout noise
-        filter_num(int): Number of filters for instrument
-        gain(float): Gain of instrument
-        """
-        def __init__(self,  target, instrument, telescope=None, airmass = 1):
-            self.integrate_range = instrument.gprime_range
-            self.filter_profile = instrument.gprime_filter
-            self.detector_qe = instrument.efficiency
+class Observation:
+
+   
+        def __init__(self,  target, telescope=None, airmass = 1):
+
+            
            # telescope_transm = telescope.transmission
             self. telescope_area = (175**2)*3.14
             self.source = target.F_lambda
             
-            self. interpolationrange = range(self.integrate_range[0], self.integrate_range[1])
-            h= 6.626*10**(-27) #ergs*s
-            c=2.9979*10**(18) #A/s
-            s_integrade = s_integradeInterpolate([self.source, self.detector_qe, self.filter_profile], self.interpolationrange)
-            
-            s_prime = self.telescope_area*(1/(h*c))*s_integrade.integral(self.integrate_range[0], self.integrate_range[1])
-            
-            self.s_prime = s_prime
+        def counts(self, instrument):
+            att = dir(instrument)
+            self.detector_qe = instrument.efficiency
+            for row in att:
+                if row.find('filter') > 0:
+                    
+                    getattr(instrument, row)
+                    self.integrate_range = instrument.gprime_range
+                    self.filter_profile = instrument.gprime_filter
+                    self. interpolationrange = range(self.integrate_range[0], self.integrate_range[1])
+                    h= 6.626*10**(-27) #ergs*s
+                    c=2.9979*10**(18) #A/s
+                    s_integrade = s_integradeInterpolate([self.source, self.detector_qe, self.filter_profile], self.interpolationrange)
+                    
+                    s_prime = self.telescope_area*(1/(h*c))*s_integrade.integral(self.integrate_range[0], self.integrate_range[1])
+                    
+                    self.s_prime = s_prime
             
     
 def s_integradeInterpolate(functions, interpolation_range):

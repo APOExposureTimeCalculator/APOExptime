@@ -2,7 +2,7 @@
 """
 Created on Mon Oct  7 14:25:10 2019
 
-@authors: Alexander
+@authors: Alexander, Bryson, Roger, Hassan, Manny
 """
 
 from astropy.io import ascii
