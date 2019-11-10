@@ -99,12 +99,27 @@ class Observation:
                     setattr(Observation, count_name, s_prime)
                     
             
-#        def SNfromTime(self, exptime):
-#            
-#            
-#        def TimefromSN(self, SN):
+        def SNfromTime(self, exptime):
+            for filter in filterlist:
+                Sprimefilter = sprimefilter
+                BprimeAfilter = bprimeafilter
+                self.T = tel_area
+                self.Npix = npix
+                self.rdnoise = telescope.readnoise
+                self.t = exptime
             
+                filter+"SN" = (Sprimefilter*self.T*self.t)/np.sqrt(Sprimefilter*self.T*self.t + BprimeAfilter*self.T*self.t + self.Npix*self.rdnoise**2)
             
+
+        def TimefromSN(self, SN):
+            Sprime = sprime
+            BprimeA = bprimea
+            T = tel_area
+            Npix = npix
+            rdnoise = RDnoise
+            SN = signaltonoise
+            
+            t = 
             
             
 def s_integradeInterpolate(functions, interpolation_range):
