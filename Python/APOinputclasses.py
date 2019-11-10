@@ -109,18 +109,36 @@ class Observation:
                     
             
         def SNfromTime(self, exptime):
+
            if row.find('filter') > 0:
             for filter in filterlist:
                 Sprimefilter = sprimefilter
                 BprimeAfilter = bprimeafilter
                 self.rdnoise = telescope.readnoise
-                self.t = exptime
+
+            if row.find('filter') > 0.5:
+                for filter in filterlist:
+                    Sprimefilter = sprimefilter
+                    BprimeAfilter = bprimeafilter
+                    self.Npix = npix
+                    self.rdnoise = telescope.readnoise
+                    self.t = exptime
             
-                filter+"SN" = (Sprimefilter*self.T*self.t)/np.sqrt(Sprimefilter*self.T*self.t + BprimeAfilter*self.T*self.t + self.Npix*self.rdnoise**2)
+                    filter+"SN" = (Sprimefilter*self.T*self.t)/np.sqrt(Sprimefilter*self.T*self.t + BprimeAfilter*self.T*self.t + self.Npix*self.rdnoise**2)
+
+            if row.find('filter') < 0.5:
+                Sprime = sprime
+                Bprime = bprime
+                self.Npix = npix
+                self.rdnoise = []
+                self.t = exptime
+                
+                for i in inst_range:
+                    self.rednoise.append(inst_rdnoise)
             
 
         def TimefromSN(self, SN):
-            if row.find('filter') > 0:
+            if row.find('filter') > 0.5:
                 for filter in filterlist:
                     Sprimefilter = sprimefilter
                     Bprimefilter = bprimefilter
@@ -128,6 +146,17 @@ class Observation:
                     SN = signaltonoise
                 
                     t = (1./(2.*Sprimefilter**2))*(SN**2*(Sprimefilter+Bprimefilter)+np.sqrt(SN**4*(Sprimefilter+Bprimefilter)**2+4.*self.Npix*(Sprimefilter*SN*self.rdnoise)**2))
+
+            if row.find('filter') < 0.5:
+                Sprime = sprime
+                Bprime = bprime
+                self.Npix = npix
+                self.rdnoise = []
+                SN = signaltonoise
+                
+                for i in inst_range:
+                    self.rednoise.append(inst_rdnoise)
+                
 
             
             
