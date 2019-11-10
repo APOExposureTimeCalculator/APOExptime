@@ -111,14 +111,16 @@ class Observation:
             
 
         def TimefromSN(self, SN):
-            Sprime = sprime
-            BprimeA = bprimea
-            T = tel_area
-            Npix = npix
-            rdnoise = RDnoise
-            SN = signaltonoise
-            
-            t = 
+            if row.find('filter') > 0:
+                for filter in filterlist:
+                    Sprimefilter = sprimefilter
+                    Bprimefilter = bprimefilter
+                    self.Npix = npix
+                    self.rdnoise = RDnoise
+                    SN = signaltonoise
+                
+                    t = (1./(2.*Sprimefilter**2))*(SN**2*(Sprimefilter+Bprimefilter)+np.sqrt(SN**4*(Sprimefilter+Bprimefilter)**2+4.*self.Npix*(Sprimefilter*SN*self.rdnoise)**2))
+
             
             
 def s_integradeInterpolate(functions, interpolation_range):
