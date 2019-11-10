@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Oct  8 15:13:34 2019
-
 @author: Alexander, Bryson, Roger, Hassan, Manny
 """
 from synphot.models import BlackBody1D
@@ -12,11 +11,41 @@ from synphot import SourceSpectrum
 from scipy import interpolate
 
 class Sky:
-    def __init__(self, lunar_phase = 0, seeing = 1):
-        self.lunarphase = lunar_phase
-        self.seeing = seeing
-        self.skySED = None #Temporary. This will be SED object that contains SED of sky from file
+    def __init__(self, lunar_phase = 0, seeing = 1, airmass = 1):
         
+        self.lunar_phase = lunar_phase
+        self.seeing = seeing
+        self.airmass = airmass
+        
+        self.transmission()
+        self.emission()
+        
+        def transmission(self):
+            if airmass <=1.25:
+                trans_file = 'trans_1.txt'
+            elif airmass < 1.75 and airmass > 1.25:
+                trans_file = 'trans_1_5.txt'
+            elif airmass >= 1.75 and airmass < 2.25:
+                trans_file = 'trans_2.txt'
+            elif airmass >= 2.25:
+                trans_file = 'trans_2_5.txt'
+                
+            transmission = np.loadtxt('../data/sky/'+trans_file)
+            self.sky_transmission = interpolate.InterpolatedUnivariateSpline(
+                transmission[:,0], transmission[:,1])
+            
+        def emission(self):   
+            if lunar_phase < 0.25:
+                emission_file = 'moon_00.txt'
+            elif lunar_phase >= 0.25 and lunar_phase < 0.75:
+                emission_file = 'moon_50.txt'
+            elif lunar_phase >= 0.75:
+                emission_file = 'moon_100.txt'
+                
+            emission = np.loadtxt('../data/sky/'+emission_file)
+            self.sky_emission = interpolate.InterpolatedUnivariateSpline(
+                emission[:,0], emission[:,1])
+
         
 class Target:
     def __init__(self, mag, magsystem, filtRange, SED = None, Temp = 5778, location=None):
@@ -35,17 +64,17 @@ class Target:
         self.inputFlux = units.convert_flux(filtRange, mag*sys, units.FLAM, vegaspec = vega)
         self.range = filtRange
         
+        self.starF_lambda()
+        
         
     def starF_lambda(self):
         sp = SourceSpectrum(BlackBody1D, temperature=self.temp*u.K)
         sp_new = sp/np.mean(sp(self.range * u.AA, flux_unit= units.FLAM)/self.inputFlux)
-        x = sp_new(range(1000,20000) * u.AA, flux_unit= units.FLAM)
-        self.F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000,20000), x)
+        x = sp_new(range(1000,30000) * u.AA, flux_unit= units.FLAM)
+        self.F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000,30000), x)
         
 class Observation:
-
-   
-        def __init__(self,  target, telescope=None, airmass = 1):
+        def __init__(self,  target, telescope=None):
             
            # telescope_transm = telescope.transmission
             self. telescope_area = (175**2)*3.14
@@ -70,27 +99,26 @@ class Observation:
                     
             
         def SNfromTime(self, exptime):
-            if row.find('filter') > 0:
-                for filter in filterlist:
-                    Sprimefilter = sprimefilter
-                    Bprimefilter = bprimefilter
-                    self.Npix = npix
-                    self.rdnoise = telescope.readnoise
-                    self.t = exptime
+            for filter in filterlist:
+                Sprimefilter = sprimefilter
+                BprimeAfilter = bprimeafilter
+                self.T = tel_area
+                self.Npix = npix
+                self.rdnoise = telescope.readnoise
+                self.t = exptime
             
-                    filter+"SN" = (Sprimefilter*self.t)/np.sqrt(Sprimefilter*self.t + Bprimefilter*self.t + self.Npix*self.rdnoise**2)
+                filter+"SN" = (Sprimefilter*self.T*self.t)/np.sqrt(Sprimefilter*self.T*self.t + BprimeAfilter*self.T*self.t + self.Npix*self.rdnoise**2)
             
 
         def TimefromSN(self, SN):
-            if row.find('filter') > 0:
-                for filter in filterlist:
-                    Sprimefilter = sprimefilter
-                    Bprimefilter = bprimefilter
-                    self.Npix = npix
-                    self.rdnoise = RDnoise
-                    SN = signaltonoise
-                
-                    t = (1./(2.*Sprimefilter**2))*(SN**2*(Sprimefilter+Bprimefilter)+np.sqrt(SN**4*(Sprimefilter+Bprimefilter)**2+4.*self.Npix*(Sprimefilter*SN*self.rdnoise)**2))
+            Sprime = sprime
+            BprimeA = bprimea
+            T = tel_area
+            Npix = npix
+            rdnoise = RDnoise
+            SN = signaltonoise
+            
+            t = 
             
             
 def s_integradeInterpolate(functions, interpolation_range):
@@ -101,8 +129,3 @@ def s_integradeInterpolate(functions, interpolation_range):
         
     return  interpolate.InterpolatedUnivariateSpline(interpolation_range, (x*interpolation_range))
             
-    
-        
-        
-        
-                 
