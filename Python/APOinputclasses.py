@@ -74,13 +74,23 @@ class Target:
         self.F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000,30000), x)
         
 class Observation:
-        def __init__(self,  target, telescope=None):
+        def __init__(self,  target, sky, instrument, telescope=None):
             
            # telescope_transm = telescope.transmission
-            self. telescope_area = (175**2)*3.14
+            self. telescope_area = (175**2)*np.pi
             self.source = target.F_lambda
+            self.skySED = sky.sky_emission
+            self.skyTransmission = sky.sky_transmission
             
-        def counts(self, instrument):
+            
+            self.counts(self.source, instrument, 'Source')
+            self.counts(self.skySED, instrument, 'Sky')
+            self.Npix(sky, instrument)
+            
+        def Npix(self, sky, instrument):
+            self.Npix = np.pi*((sky.seeing/2)**2)/(instrument.scale**2)
+            
+        def counts(self, source, instrument, SourceOrSky):
             att = dir(instrument)
             self.detector_qe = instrument.efficiency
             for row in att:
@@ -91,19 +101,18 @@ class Observation:
                     interpolationrange = range(integrate_range[0], integrate_range[1])
                     h= 6.626*10**(-27) #ergs*s
                     c=2.9979*10**(18) #A/s
-                    s_integrade = s_integradeInterpolate([self.source, self.detector_qe, filter_profile], interpolationrange)
+                    s_integrade = s_integradeInterpolate([source, self.detector_qe, self.skyTransmission, filter_profile], interpolationrange)
                     
                     s_prime = self.telescope_area*(1/(h*c))*s_integrade.integral(integrate_range[0], integrate_range[1])
-                    count_name = row.replace('_filter', '') +'_countrate'
+                    count_name = row.replace('_filter', '') +'_'+SourceOrSky+'countrate'
                     setattr(Observation, count_name, s_prime)
                     
             
         def SNfromTime(self, exptime):
+           if row.find('filter') > 0:
             for filter in filterlist:
                 Sprimefilter = sprimefilter
                 BprimeAfilter = bprimeafilter
-                self.T = tel_area
-                self.Npix = npix
                 self.rdnoise = telescope.readnoise
                 self.t = exptime
             
@@ -115,7 +124,6 @@ class Observation:
                 for filter in filterlist:
                     Sprimefilter = sprimefilter
                     Bprimefilter = bprimefilter
-                    self.Npix = npix
                     self.rdnoise = RDnoise
                     SN = signaltonoise
                 
