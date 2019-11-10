@@ -120,7 +120,6 @@ class Observation:
                 for filter in filterlist:
                     Sprimefilter = sprimefilter
                     BprimeAfilter = bprimeafilter
-                    self.Npix = npix
                     self.rdnoise = telescope.readnoise
                     self.t = exptime
             
@@ -129,12 +128,13 @@ class Observation:
             if row.find('filter') < 0.5:
                 Sprime = sprime
                 Bprime = bprime
-                self.Npix = npix
                 self.rdnoise = []
                 self.t = exptime
                 
                 for i in inst_range:
                     self.rednoise.append(inst_rdnoise)
+                
+                # PLOT SHIT HERE
             
 
         def TimefromSN(self, SN):
@@ -150,15 +150,14 @@ class Observation:
             if row.find('filter') < 0.5:
                 Sprime = sprime
                 Bprime = bprime
-                self.Npix = npix
                 self.rdnoise = []
                 SN = signaltonoise
                 
                 for i in inst_range:
                     self.rednoise.append(inst_rdnoise)
                 
-
-            
+                # PLOT SHIT HERE
+                
             
 def s_integradeInterpolate(functions, interpolation_range):
     for i,f in enumerate(functions):
