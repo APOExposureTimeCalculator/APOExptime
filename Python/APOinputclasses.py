@@ -39,14 +39,13 @@ class Target:
     def starF_lambda(self):
         sp = SourceSpectrum(BlackBody1D, temperature=self.temp*u.K)
         sp_new = sp/np.mean(sp(self.range * u.AA, flux_unit= units.FLAM)/self.inputFlux)
-        x = sp_new(range(1000,9000) * u.AA, flux_unit= units.FLAM)
-        self.F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000,9000), x)
+        x = sp_new(range(1000,20000) * u.AA, flux_unit= units.FLAM)
+        self.F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000,20000), x)
         
 class Observation:
 
    
         def __init__(self,  target, telescope=None, airmass = 1):
-
             
            # telescope_transm = telescope.transmission
             self. telescope_area = (175**2)*3.14
@@ -58,19 +57,26 @@ class Observation:
             for row in att:
                 if row.find('filter') > 0:
                     
-                    getattr(instrument, row)
-                    self.integrate_range = instrument.gprime_range
-                    self.filter_profile = instrument.gprime_filter
-                    self. interpolationrange = range(self.integrate_range[0], self.integrate_range[1])
+                    filter_profile = getattr(instrument, row)
+                    integrate_range = getattr(instrument,row.replace('filter', 'range'))
+                    interpolationrange = range(integrate_range[0], integrate_range[1])
                     h= 6.626*10**(-27) #ergs*s
                     c=2.9979*10**(18) #A/s
-                    s_integrade = s_integradeInterpolate([self.source, self.detector_qe, self.filter_profile], self.interpolationrange)
+                    s_integrade = s_integradeInterpolate([self.source, self.detector_qe, filter_profile], interpolationrange)
                     
-                    s_prime = self.telescope_area*(1/(h*c))*s_integrade.integral(self.integrate_range[0], self.integrate_range[1])
+                    s_prime = self.telescope_area*(1/(h*c))*s_integrade.integral(integrate_range[0], integrate_range[1])
+                    count_name = row.replace('_filter', '') +'_countrate'
+                    setattr(Observation, count_name, s_prime)
                     
-                    self.s_prime = s_prime
             
-    
+#        def SNfromTime(self, exptime):
+#            
+#            
+#        def TimefromSN(self, SN):
+            
+            
+            
+            
 def s_integradeInterpolate(functions, interpolation_range):
     for i,f in enumerate(functions):
         if i == 0:
