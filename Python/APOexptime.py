@@ -54,9 +54,9 @@ class Instrument:
         
         self.efficiency = efficiency_interpolated
         self.readout_noise = para['readoutnoise[electrons]'][0]
-        self.filter_num = para['FilterNum']
-        self.gain = para['gain']
-
+        self.filter_num = para['FilterNum'][0]
+        self.gain = para['gain'][0]
+        self.scale = para['plate_scale[arcsec/pix]'][0]
 # How to read our data files:
 
 
