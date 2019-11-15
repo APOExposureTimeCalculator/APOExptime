@@ -271,6 +271,7 @@ def s_integradeInterpolate(functions, interpolation_range):
     :param interpolation_range:
     :return:
 
+
     """
     for i, f in enumerate(functions):
         if i == 0:
