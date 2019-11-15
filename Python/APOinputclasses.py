@@ -298,8 +298,9 @@ class Instrument:
             qefficiency_wavelength, qefficiency_percent)
 
         if para['isImager'][0] == 0:
+            spec_width = para['Width']
             disp = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_disp.data')
-            self.Npix_lam = interpolate.InterpolatedUnivariateSpline(disp['col2'], (disp['col1'] ** (-1)))
+            self.Npix_lam = interpolate.InterpolatedUnivariateSpline(disp['col2'], (spec_width*disp['col1'] ** (-1)))
             self.range = [para['rangeMin'][0], para['rangeMax'][0]]
 
         self.efficiency = efficiency_interpolated
