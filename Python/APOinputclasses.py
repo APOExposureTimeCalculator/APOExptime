@@ -266,7 +266,10 @@ class Instrument:
 
 def s_integradeInterpolate(functions, interpolation_range):
     """Takes multiple interpolation objects and multiplies them together then reinterpolates to output a single
-    interpolation object :param functions: :param interpolation_range: :return:
+    interpolation object
+    :param functions:
+    :param interpolation_range:
+    :return:
     """
     for i, f in enumerate(functions):
         if i == 0:
