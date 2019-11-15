@@ -6,15 +6,15 @@ import matplotlib.pyplot as plt
 
 sky = Sky(lunar_phase=0)
 star = Target(20, 'VEGAMAG', [5000, 7000], temp=6000)
-inst = Instrument('Arctic')
+inst = Instrument('Arces')
 ob = Observation(star, sky, inst)
 
 times = ob.TimefromSN(10)
 
-sn = ob.SNfromTime(1000)
+sn = ob.SNfromTime(100)
 
 
-#plt.plot(sn[0], sn[1])
+plt.plot(sn[0], sn[1])
 #plt.plot(times[0], times[1])
 
 

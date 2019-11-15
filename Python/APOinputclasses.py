@@ -164,7 +164,7 @@ class Observation:
             s_integrade = s_integradeInterpolate([sky, self.detector_qe, self.skyTransmission],
                                                  interpolationrange)
 
-            self.sky_prime_dlam = [(self.telescope_area * (1 / (h * c)) * s_integrade[1]), s_integrade[0]]
+            self.sky_prime_dlam = [(self.telescope_area * ((self.seeing / 2) ** 2) * s_integrade[1]), s_integrade[0]]
 
     def counts(self, source, instrument):
         att = dir(instrument)
