@@ -1,0 +1,10 @@
+.DS_Store
+
+#general things to ignore
+
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+*~
