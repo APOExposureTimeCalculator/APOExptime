@@ -1,0 +1,14 @@
+isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	Dispersion	FilterNum	Filters
+
+1.	15.	0.228	3.7	2.	N/A	5. 	gprime_filter.dat
+							iprime_filter.dat
+							rprime_filter.dat
+							uprime_filter.dat
+							zprime_filter.dat
+							Johnson_ufilt.dat
+							Johnson_bfilt.dat
+							Johnson_vfilt.dat
+							Johnson_rfilt.dat
+							Johnson_ifilt.dat
+
+
