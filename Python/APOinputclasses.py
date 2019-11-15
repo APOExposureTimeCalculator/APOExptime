@@ -140,7 +140,7 @@ class Observation:
         if self.isImager == 1:
             Npix = np.pi * ((self.seeing / 2) ** 2) / (instrument.scale ** 2)
         else:
-            Npix = instrument.Npix
+            Npix = instrument.Npix_lam(range(instrument.range[0], instrument.range[1]))
         return Npix
 
     def skycounts(self, sky, instrument):
@@ -164,7 +164,8 @@ class Observation:
             s_integrade = s_integradeInterpolate([sky, self.detector_qe, self.skyTransmission],
                                                  interpolationrange)
 
-            self.sky_prime_dlam = [(self.telescope_area * (1 / (h * c)) * s_integrade[1]), s_integrade[0]]
+            self.sky_prime_dlam = [(self.telescope_area * ((self.seeing / 2) ** 2) * .8 * s_integrade[1]),
+                                   s_integrade[0]]
 
     def counts(self, source, instrument):
         att = dir(instrument)
@@ -192,8 +193,8 @@ class Observation:
             s_integrade = s_integradeInterpolate([source, self.detector_qe, self.skyTransmission],
                                                  interpolationrange)
 
-            self.s_prime_dlam = [(self.telescope_area * (1 / (h * c)) * s_integrade[1] * interpolationrange),
-                                         s_integrade[0]]
+            self.s_prime_dlam = [(self.telescope_area * (1 / (h * c)) * .8 * s_integrade[1] * interpolationrange),
+                                 s_integrade[0]]
 
     def SNfromTime(self, exptime):
         """
@@ -242,8 +243,10 @@ class Observation:
 
                     setattr(Observation, Tname, t)
         else:
-            t_d_lam = (1. / (2. * self.s_prime_dlam[0] ** 2)) * (SN ** 2 * (self.s_prime_dlam[0] + self.sky_prime_dlam[0]) + np.sqrt(SN ** 4 * (
-                            self.s_prime_dlam[0] + self.sky_prime_dlam[0]) ** 2 + 4. * self.Npix * (self.s_prime_dlam[0] * SN * self.rdnoise) ** 2))
+            t_d_lam = (1. / (2. * self.s_prime_dlam[0] ** 2)) * (
+                    SN ** 2 * (self.s_prime_dlam[0] + self.sky_prime_dlam[0]) + np.sqrt(SN ** 4 * (
+                    self.s_prime_dlam[0] + self.sky_prime_dlam[0]) ** 2 + 4. * self.Npix * (self.s_prime_dlam[
+                                                                                                0] * SN * self.rdnoise) ** 2))
             returnList = [np.array(self.s_prime_dlam[1]), t_d_lam]
 
         return returnList
@@ -295,9 +298,9 @@ class Instrument:
             qefficiency_wavelength, qefficiency_percent)
 
         if para['isImager'][0] == 0:
-            self.dispersion = para['Dispersion']
+            disp = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_disp.data')
+            self.Npix_lam = interpolate.InterpolatedUnivariateSpline(disp['col2'], (disp['col1'] ** (-1)))
             self.range = [para['rangeMin'][0], para['rangeMax'][0]]
-            self.Npix = para['Npix'][0]
 
         self.efficiency = efficiency_interpolated
         self.readout_noise = para['readoutnoise[electrons]'][0]
@@ -322,4 +325,3 @@ def s_integradeInterpolate(functions, interpolation_range):
         x = f(interpolation_range) * x
 
     return [interpolation_range, x]
-

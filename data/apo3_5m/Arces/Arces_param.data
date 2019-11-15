@@ -1,4 +1,4 @@
 isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	Dispersion	FilterNum	Filters	Npix	rangeMin	rangeMax
 
-0.	24.	None	7	3.8.	31500	0. 	None	100	3200	10000
+0.	24.	None	7	3.8.	31500	0. 	None	1000	3200	10000
 							
