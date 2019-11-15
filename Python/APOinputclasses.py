@@ -166,8 +166,8 @@ class Observation:
                 s_integrade = s_integradeInterpolate([source, self.detector_qe, self.skyTransmission, filter_profile],
                                                      interpolationrange)
 
-                s_prime = self.telescope_area * (1 / (h * c)) * s_integrade.integral(integrate_range[0],
-                                                                                     integrate_range[1])
+                s_prime_dlam = [(self.telescope_area * (1 / (h * c)) * s_integrade[1]), s_integrade[0]]
+                s_prime = np.trapz(s_prime_dlam[0], s_prime_dlam[1])
                 count_name = row.replace('_filter', '') + '_sourcecountrate'
                 setattr(Observation, count_name, s_prime)
 
@@ -278,7 +278,7 @@ def s_integradeInterpolate(functions, interpolation_range):
             x = np.ones(len(interpolation_range))
         x = f(interpolation_range) * x
 
-    return interpolate.InterpolatedUnivariateSpline(interpolation_range, (x * interpolation_range))
+    return [interpolation_range, (x * interpolation_range)]
 
 
 def sky_integradeInterpolate(functions, interpolation_range):
