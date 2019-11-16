@@ -1,0 +1,22 @@
+About the Package
+*****************
+This package was motivated by the Observational Techniques class taught by Jon Holtzman at New Mexico State University and was designed by graduate students in the Astronomy Department at NMSU. The package is designed to work only with the Astrophysical Research Consortium (ARC) 3.5m telescope and it's respective instruments. The purpose of the package is to be able to calculate the exposure time needed in order to reach a desired signal to noise.
+
+Limitations
+-----------
+The package is currently designed to work only with the ARC 3.5m telescope, though there are plans to make it more versatile. In any case, the package currently works for the arctic imager and for the TRIPLESPEC spectrograh. As this is the first package we've ever built, there is still much work being done to imporve the functionality and structure of the package.
+
+Installing APOExptime
+---------------------
+The APOExptime package can be found our `github page <https://github.com/APOExposureTimeCalculator/APOExptime>`_. Clone or download the repository and ``cd`` into the main directory (containing setup.py file). Once you are in that directory, simply run the following command:
+
+``$ pip install ./``
+
+.. Warning::
+   
+   You must have the following packages in order for APOExptime to work:
+       numpy, 
+       matplotlib,
+       scipy,
+       synphot,
+       astropy.

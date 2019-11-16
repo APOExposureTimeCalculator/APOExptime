@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>APOExptime.inputs &#8212; APOExptime 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for APOExptime.inputs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Created on Tue Oct  8 15:13:34 2019</span>
+<span class="sd">@author: Alexander, Bryson, Roger, Hassan, Manny</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">synphot.models</span> <span class="k">import</span> <span class="n">BlackBody1D</span>
+<span class="kn">from</span> <span class="nn">synphot</span> <span class="k">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">abspath</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">synphot</span> <span class="k">import</span> <span class="n">SourceSpectrum</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">interpolate</span>
+
+
+<div class="viewcode-block" id="Instrument"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Instrument">[docs]</a><span class="k">class</span> <span class="nc">Instrument</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Instantiates an object of the Instrument class. This object will contain all the attributes of the selected</span>
+<span class="sd">    instrument</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        Instr_name(str): Name of Instrument to be used.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        efficiency(object): UnivariateInterpolatedSpline of instrument efficiency.</span>
+<span class="sd">        readout_noise(float): Value of instrument readout noise</span>
+<span class="sd">        filter_num(int): Number of filters for instrument</span>
+<span class="sd">        gain(float): Gain of instrument</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Instr_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param Instr_name:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">para</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;../data/apo3_5m/&#39;</span> <span class="o">+</span> <span class="n">Instr_name</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">Instr_name</span> <span class="o">+</span> <span class="s1">&#39;_param.data&#39;</span><span class="p">)</span>
+
+        <span class="n">efficiency</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;../data/apo3_5m/&#39;</span> <span class="o">+</span> <span class="n">Instr_name</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">Instr_name</span> <span class="o">+</span> <span class="s1">&#39;_qe.data&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">para</span><span class="p">[</span><span class="s1">&#39;Filters&#39;</span><span class="p">]:</span>
+            <span class="n">filt</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s1">&#39;../data/apo3_5m/&#39;</span> <span class="o">+</span> <span class="n">Instr_name</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">row</span><span class="p">)</span>
+            <span class="n">data_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.dat&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">filt_wavelength</span> <span class="o">=</span> <span class="n">filt</span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">]</span>
+            <span class="n">filt_throughput</span> <span class="o">=</span> <span class="n">filt</span><span class="p">[</span><span class="s2">&quot;col2&quot;</span><span class="p">]</span>
+            <span class="n">filt_interpolated</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span>
+                <span class="n">filt_wavelength</span><span class="p">,</span> <span class="n">filt_throughput</span><span class="p">)</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">Instrument</span><span class="p">,</span> <span class="n">data_name</span><span class="p">,</span> <span class="n">filt_interpolated</span><span class="p">)</span>
+
+            <span class="n">filt_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">filt</span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">filt</span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">][</span><span class="nb">len</span><span class="p">(</span><span class="n">filt</span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]]</span>
+            <span class="n">range_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;filter.dat&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;range&#39;</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">Instrument</span><span class="p">,</span> <span class="n">range_name</span><span class="p">,</span> <span class="n">filt_range</span><span class="p">)</span>
+
+        <span class="n">qefficiency_wavelength</span> <span class="o">=</span> <span class="n">efficiency</span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span>  <span class="c1"># multiplied by 10 to turn to angstroms</span>
+        <span class="n">qefficiency_percent</span> <span class="o">=</span> <span class="n">efficiency</span><span class="p">[</span><span class="s2">&quot;col2&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">100</span>  <span class="c1"># divided by 100 to turn into decimal</span>
+
+        <span class="n">efficiency_interpolated</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span>
+            <span class="n">qefficiency_wavelength</span><span class="p">,</span> <span class="n">qefficiency_percent</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">para</span><span class="p">[</span><span class="s1">&#39;isImager&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dispersion</span> <span class="o">=</span> <span class="n">para</span><span class="p">[</span><span class="s1">&#39;Dispersion&#39;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">efficiency</span> <span class="o">=</span> <span class="n">efficiency_interpolated</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">readout_noise</span> <span class="o">=</span> <span class="n">para</span><span class="p">[</span><span class="s1">&#39;readoutnoise[electrons]&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filter_num</span> <span class="o">=</span> <span class="n">para</span><span class="p">[</span><span class="s1">&#39;FilterNum&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">para</span><span class="p">[</span><span class="s1">&#39;gain&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">para</span><span class="p">[</span><span class="s1">&#39;plate_scale[arcsec/pix]&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Observation"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Observation">[docs]</a><span class="k">class</span> <span class="nc">Observation</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Creates object for an observation given a certain telescope, instrument, sky conditions, and target&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">sky</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">telescope</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param target:</span>
+<span class="sd">        :param sky:</span>
+<span class="sd">        :param instrument:</span>
+<span class="sd">        :param telescope:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># telescope_transm = telescope.transmission</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">telescope_area</span> <span class="o">=</span> <span class="p">(</span><span class="mi">175</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">F_lambda</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skySED</span> <span class="o">=</span> <span class="n">sky</span><span class="o">.</span><span class="n">sky_emission</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skyTransmission</span> <span class="o">=</span> <span class="n">sky</span><span class="o">.</span><span class="n">sky_transmission</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seeing</span> <span class="o">=</span> <span class="n">sky</span><span class="o">.</span><span class="n">seeing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rdnoise</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">readout_noise</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">instrument</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skycounts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">skySED</span><span class="p">,</span> <span class="n">instrument</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Npix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Npix</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Observation.Npix"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Observation.Npix">[docs]</a>    <span class="k">def</span> <span class="nf">Npix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param instrument:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Npix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">seeing</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">instrument</span><span class="o">.</span><span class="n">scale</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Npix</span></div>
+
+<div class="viewcode-block" id="Observation.skycounts"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Observation.skycounts">[docs]</a>    <span class="k">def</span> <span class="nf">skycounts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sky</span><span class="p">,</span> <span class="n">instrument</span><span class="p">):</span>
+        <span class="n">att</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector_qe</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">efficiency</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">att</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">filter_profile</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+                <span class="n">integrate_range</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">,</span> <span class="s1">&#39;range&#39;</span><span class="p">))</span>
+                <span class="n">interpolationrange</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">integrate_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">integrate_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">s_integrade</span> <span class="o">=</span> <span class="n">sky_integradeInterpolate</span><span class="p">([</span><span class="n">sky</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector_qe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">skyTransmission</span><span class="p">,</span> <span class="n">filter_profile</span><span class="p">],</span>
+                                                       <span class="n">interpolationrange</span><span class="p">)</span>
+                <span class="n">s_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">telescope_area</span> <span class="o">*</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">seeing</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s_integrade</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">integrate_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                                                <span class="n">integrate_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">count_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_filter&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_skycountrate&#39;</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">Observation</span><span class="p">,</span> <span class="n">count_name</span><span class="p">,</span> <span class="n">s_prime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Observation.counts"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Observation.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">instrument</span><span class="p">):</span>
+        <span class="n">att</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector_qe</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">efficiency</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">att</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">filter_profile</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+                <span class="n">integrate_range</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;filter&#39;</span><span class="p">,</span> <span class="s1">&#39;range&#39;</span><span class="p">))</span>
+                <span class="n">interpolationrange</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="n">integrate_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">integrate_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="mf">6.626</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">27</span><span class="p">)</span>  <span class="c1"># ergs*s</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="mf">2.9979</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mi">18</span><span class="p">)</span>  <span class="c1"># A/s</span>
+                <span class="n">s_integrade</span> <span class="o">=</span> <span class="n">s_integradeInterpolate</span><span class="p">([</span><span class="n">source</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector_qe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">skyTransmission</span><span class="p">,</span> <span class="n">filter_profile</span><span class="p">],</span>
+                                                     <span class="n">interpolationrange</span><span class="p">)</span>
+
+                <span class="n">s_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">telescope_area</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">h</span> <span class="o">*</span> <span class="n">c</span><span class="p">))</span> <span class="o">*</span> <span class="n">s_integrade</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">integrate_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                                                                     <span class="n">integrate_range</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">count_name</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_filter&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;_sourcecountrate&#39;</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">Observation</span><span class="p">,</span> <span class="n">count_name</span><span class="p">,</span> <span class="n">s_prime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Observation.SNfromTime"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Observation.SNfromTime">[docs]</a>    <span class="k">def</span> <span class="nf">SNfromTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exptime</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param exptime:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">att</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">returnList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">att</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;sourcecountrate&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sourceCount</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+                <span class="n">skyCount</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;sky&#39;</span><span class="p">))</span>
+
+                <span class="n">SN</span> <span class="o">=</span> <span class="p">(</span><span class="n">sourceCount</span> <span class="o">*</span> <span class="n">exptime</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sourceCount</span> <span class="o">*</span> <span class="n">exptime</span> <span class="o">+</span> <span class="n">skyCount</span> <span class="o">*</span> <span class="n">exptime</span>
+                                                       <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Npix</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdnoise</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="n">SNname</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;sourcecountrate&#39;</span><span class="p">,</span> <span class="s1">&#39;SN&#39;</span><span class="p">)</span>
+                <span class="n">returnList</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">SN</span><span class="p">,</span> <span class="n">SNname</span><span class="p">])</span>
+
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">Observation</span><span class="p">,</span> <span class="n">SNname</span><span class="p">,</span> <span class="n">SN</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">returnList</span></div>
+        <span class="c1"># PLOT SHIT HERE</span>
+
+<div class="viewcode-block" id="Observation.TimefromSN"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Observation.TimefromSN">[docs]</a>    <span class="k">def</span> <span class="nf">TimefromSN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SN</span><span class="p">):</span>
+        <span class="n">att</span> <span class="o">=</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">returnList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">att</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;sourcecountrate&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sourceCount</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+                <span class="n">skyCount</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">,</span> <span class="s1">&#39;sky&#39;</span><span class="p">))</span>
+
+                <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.</span> <span class="o">*</span> <span class="n">sourceCount</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">SN</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sourceCount</span> <span class="o">+</span> <span class="n">skyCount</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">SN</span> <span class="o">**</span> <span class="mi">4</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="n">sourceCount</span> <span class="o">+</span> <span class="n">skyCount</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mf">4.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">Npix</span> <span class="o">*</span> <span class="p">(</span><span class="n">sourceCount</span> <span class="o">*</span> <span class="n">SN</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdnoise</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+                <span class="n">Tname</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;sourcecountrate&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">)</span>
+                <span class="n">returnList</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">t</span><span class="p">,</span> <span class="n">Tname</span><span class="p">])</span>
+
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">Observation</span><span class="p">,</span> <span class="n">Tname</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">returnList</span></div></div>
+    <span class="c1">#         # PLOT SHIT HERE</span>
+
+
+<div class="viewcode-block" id="Sky"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Sky">[docs]</a><span class="k">class</span> <span class="nc">Sky</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Object representing the sky flux and transmission.</span>
+
+<span class="sd">    :param lunar_phase: Defines the lunar phase (0 is new and 1 is full). Defaults to 0.</span>
+<span class="sd">    :type lunar_phase: float, optional</span>
+<span class="sd">    :param seeing: Defines the seeing (in arcseconds). Defaults to 1.</span>
+<span class="sd">    :type seeing: float, optional</span>
+<span class="sd">    :param airmass: Defines the airmass. Defaults to 1.</span>
+<span class="sd">    :type airmass: float, optional</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">lunar_phase</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">seeing</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">airmass</span><span class="o">=</span><span class="mi">1</span>
+                 <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor method for the Sky class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lunar_phase</span> <span class="o">=</span> <span class="n">lunar_phase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">airmass</span> <span class="o">=</span> <span class="n">airmass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seeing</span> <span class="o">=</span> <span class="n">seeing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sky_transmission</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transmission</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sky_emission</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emission</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Sky.transmission"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Sky.transmission">[docs]</a>    <span class="k">def</span> <span class="nf">transmission</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to obtain the transmission of the sky.</span>
+
+<span class="sd">        :return: The transmission of the sky interpolated.</span>
+<span class="sd">        :rtype: Interpolated object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#Get the appropriate data file based on the airmass.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">airmass</span> <span class="o">&lt;=</span> <span class="mf">1.25</span><span class="p">:</span>
+            <span class="n">trans_file</span> <span class="o">=</span> <span class="s1">&#39;trans_1.txt&#39;</span>
+        <span class="k">elif</span> <span class="mf">1.75</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">airmass</span> <span class="o">&gt;</span> <span class="mf">1.25</span><span class="p">:</span>
+            <span class="n">trans_file</span> <span class="o">=</span> <span class="s1">&#39;trans_1_5.txt&#39;</span>
+        <span class="k">elif</span> <span class="mf">1.75</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">airmass</span> <span class="o">&lt;</span> <span class="mf">2.25</span><span class="p">:</span>
+            <span class="n">trans_file</span> <span class="o">=</span> <span class="s1">&#39;trans_2.txt&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">airmass</span> <span class="o">&gt;=</span> <span class="mf">2.25</span><span class="p">:</span>
+            <span class="n">trans_file</span> <span class="o">=</span> <span class="s1">&#39;trans_2_5.txt&#39;</span>
+
+        <span class="n">path_to_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;/data/Sky/&#39;</span>
+
+        <span class="n">transmission</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">path_to_dir</span> <span class="o">+</span> <span class="n">trans_file</span><span class="p">)</span>
+        <span class="n">sky_transmission</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span>
+            <span class="n">transmission</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="n">transmission</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">sky_transmission</span></div>
+
+<div class="viewcode-block" id="Sky.emission"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Sky.emission">[docs]</a>    <span class="k">def</span> <span class="nf">emission</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to obtain the emission from the sky.</span>
+
+<span class="sd">        :return: The sky emission of the sky interpolated.</span>
+<span class="sd">        :rtype: Interpolated object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#Get the appropriate transmission file. Based on the lunar phase.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lunar_phase</span> <span class="o">&lt;</span> <span class="mf">0.25</span><span class="p">:</span>
+            <span class="n">emission_file</span> <span class="o">=</span> <span class="s1">&#39;moon_00.txt&#39;</span>
+        <span class="k">elif</span> <span class="mf">0.25</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lunar_phase</span> <span class="o">&lt;</span> <span class="mf">0.75</span><span class="p">:</span>
+            <span class="n">emission_file</span> <span class="o">=</span> <span class="s1">&#39;moon_50.txt&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">lunar_phase</span> <span class="o">&gt;=</span> <span class="mf">0.75</span><span class="p">:</span>
+            <span class="n">emission_file</span> <span class="o">=</span> <span class="s1">&#39;moon_100.txt&#39;</span>
+
+        <span class="n">path_to_dir</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;/data/Sky/&#39;</span>
+
+        <span class="n">emission</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">path_to_dir</span> <span class="o">+</span> <span class="n">emission_file</span><span class="p">)</span>
+
+        <span class="n">sky_emission</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span>
+            <span class="n">emission</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="p">(</span><span class="n">emission</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.0001</span> <span class="o">*</span> <span class="mf">10E-4</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">sky_emission</span></div></div>
+
+
+<div class="viewcode-block" id="Target"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Target">[docs]</a><span class="k">class</span> <span class="nc">Target</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Object that represents the target which you wish to observe.</span>
+
+<span class="sd">    :param magnitude: The magnitude of the object which you are observing.</span>
+<span class="sd">    :type magnitude: float</span>
+<span class="sd">    :param mag_system: The magnitude system used to measure the above magnitude.</span>
+<span class="sd">    :type mag_system: str</span>
+<span class="sd">    :param filter_range: The range (in Angstroms) which you wish to observe in.</span>
+<span class="sd">    :type filter_range: tuple</span>
+<span class="sd">    :param sed: The spectral energy distribution of the target star. Defaults to None.</span>
+<span class="sd">    :type sed: Interpolated object, optional</span>
+<span class="sd">    :param temp: The temperature of the target star (in Kelvin). Defaults to 5778.</span>
+<span class="sd">    :type temp: float, optional</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">magnitude</span><span class="p">,</span>
+                 <span class="n">mag_system</span><span class="p">,</span>
+                 <span class="n">filter_range</span><span class="p">,</span>
+                 <span class="n">sed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">temp</span><span class="o">=</span><span class="mi">5778</span>
+                 <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor for the target class.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#Define the magnitude system (as inputted by the user).</span>
+        <span class="k">if</span> <span class="n">mag_system</span> <span class="o">==</span> <span class="s1">&#39;VEGAMAG&#39;</span><span class="p">:</span>
+            <span class="n">sys</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">VEGAMAG</span>
+        <span class="k">elif</span> <span class="n">mag_system</span> <span class="o">==</span> <span class="s1">&#39;stmag&#39;</span><span class="p">:</span>
+            <span class="n">sys</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">STmag</span>
+        <span class="k">elif</span> <span class="n">mag_system</span> <span class="o">==</span> <span class="s1">&#39;abnu&#39;</span><span class="p">:</span>
+            <span class="n">sys</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">ABmag</span>
+
+        <span class="n">vega</span> <span class="o">=</span> <span class="n">SourceSpectrum</span><span class="o">.</span><span class="n">from_vega</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">magnitude</span> <span class="o">=</span> <span class="n">magnitude</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_system</span> <span class="o">=</span> <span class="n">mag_system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SED</span> <span class="o">=</span> <span class="n">sed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputFlux</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">convert_flux</span><span class="p">(</span><span class="n">filter_range</span><span class="p">,</span> <span class="n">magnitude</span> <span class="o">*</span> <span class="n">sys</span><span class="p">,</span> <span class="n">units</span><span class="o">.</span><span class="n">FLAM</span><span class="p">,</span> <span class="n">vegaspec</span><span class="o">=</span><span class="n">vega</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">filter_range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">F_lambda</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">starF_lambda</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print magnitude and magnitude system of the star.</span>
+
+<span class="sd">        :return: The magnitude and magnitude system of the star.</span>
+<span class="sd">        :rtype: str</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;You are observing a </span><span class="si">{}</span><span class="s2"> magnitude star using the </span><span class="si">{}</span><span class="s2"> system.&quot;</span>\
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">magnitude</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">mag_system</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Target.f_lambda"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.Target.f_lambda">[docs]</a>    <span class="k">def</span> <span class="nf">f_lambda</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method that calculates f_lambda beside on a black body spectrum, scaled to Vega.</span>
+
+<span class="sd">        :return: The flux per wavelength (cgs) of the target star</span>
+<span class="sd">        :rtype: Interpolated object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">SourceSpectrum</span><span class="p">(</span><span class="n">BlackBody1D</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">temp</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">K</span><span class="p">)</span>
+        <span class="n">sp_new</span> <span class="o">=</span> <span class="n">sp</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span> <span class="n">flux_unit</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">FLAM</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputFlux</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">sp_new</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">30000</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">AA</span><span class="p">,</span> <span class="n">flux_unit</span><span class="o">=</span><span class="n">units</span><span class="o">.</span><span class="n">FLAM</span><span class="p">)</span>
+        <span class="n">f_lambda</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">30000</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f_lambda</span></div></div>
+
+<div class="viewcode-block" id="s_integradeInterpolate"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.s_integradeInterpolate">[docs]</a><span class="k">def</span> <span class="nf">s_integradeInterpolate</span><span class="p">(</span><span class="n">functions</span><span class="p">,</span> <span class="n">interpolation_range</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes multiple interpolation objects and multiplies them together then reinterpolates to output a single</span>
+<span class="sd">    interpolation object :param functions: :param interpolation_range: :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">functions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">interpolation_range</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">interpolation_range</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span>
+
+    <span class="k">return</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span><span class="n">interpolation_range</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">interpolation_range</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="sky_integradeInterpolate"><a class="viewcode-back" href="../../inputs.html#APOExptime.inputs.sky_integradeInterpolate">[docs]</a><span class="k">def</span> <span class="nf">sky_integradeInterpolate</span><span class="p">(</span><span class="n">functions</span><span class="p">,</span> <span class="n">interpolation_range</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Takes multiple interpolation objects and multiplies them together then reinterpolates to output a single</span>
+<span class="sd">    interpolation object :param functions: :param interpolation_range: :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">functions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">interpolation_range</span><span class="p">))</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">interpolation_range</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span>
+
+    <span class="k">return</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">InterpolatedUnivariateSpline</span><span class="p">(</span><span class="n">interpolation_range</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/3_5.JPG" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Manny, Alexander, Bryson, Rogelio, Hasan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

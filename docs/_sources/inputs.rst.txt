@@ -1,0 +1,12 @@
+Documentation
+*************
+
+The following is my best attempt to explain the structure of the package and how it works. The package only includes one module called ``inputs`` and it contains all the classes and functions necessary to be able to calculate an exposure time.
+
+The ``inputs`` Module
+=====================
+
+.. automodule:: APOExptime.inputs
+    :members:
+    :undoc-members:
+    :show-inheritance: bysource
