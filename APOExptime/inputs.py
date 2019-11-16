@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Oct  8 15:13:34 2019
-@author: Alexander, Bryson, Roger, Hassan, Manny
-"""
+
 from synphot.models import BlackBody1D
 from synphot import units
 from os.path import dirname, abspath
