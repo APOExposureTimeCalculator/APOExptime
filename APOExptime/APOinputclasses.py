@@ -5,6 +5,7 @@ Created on Tue Oct  8 15:13:34 2019
 """
 from synphot.models import BlackBody1D
 from synphot import units
+from os.path import dirname, abspath
 from astropy import units as u
 import numpy as np
 from synphot import SourceSpectrum
@@ -12,102 +13,59 @@ from astropy.io import ascii
 from scipy import interpolate
 
 
-class Sky:
-    """Object to contain attributes for sky conditions, given an airmass, seeing, and moon phase"""
+class Instrument:
+    """Instantiates an object of the Instrument class. This object will contain all the attributes of the selected
+    instrument
 
-    def __init__(self, lunar_phase=0, seeing=1, airmass=1):
+    Args:
+        Instr_name(str): Name of Instrument to be used.
+
+    Attributes:
+        efficiency(object): UnivariateInterpolatedSpline of instrument efficiency.
+        readout_noise(float): Value of instrument readout noise
+        filter_num(int): Number of filters for instrument
+        gain(float): Gain of instrument
         """
 
-        :param lunar_phase:
-        :param seeing:
-        :param airmass:
-        """
-        self.lunar_phase = lunar_phase
-        self.airmass = airmass
-        self.seeing = seeing
-        self.sky_transmission = self.transmission()
-        self.sky_emission = self.emission()
-
-    def transmission(self):
+    def __init__(self, Instr_name):
         """
 
-        :return:
+        :param Instr_name:
         """
-        if self.airmass <= 1.25:
-            trans_file = 'trans_1.txt'
-        elif 1.75 > self.airmass > 1.25:
-            trans_file = 'trans_1_5.txt'
-        elif 1.75 <= self.airmass < 2.25:
-            trans_file = 'trans_2.txt'
-        elif self.airmass >= 2.25:
-            trans_file = 'trans_2_5.txt'
+        para = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_param.data')
 
-        transmission = np.loadtxt('../data/sky/' + trans_file)
-        sky_transmission = interpolate.InterpolatedUnivariateSpline(
-            transmission[:, 0] * 10, transmission[:, 1])
-        return sky_transmission
+        efficiency = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_qe.data')
 
-    def emission(self):
-        """
+        for row in para['Filters']:
+            filt = ascii.read('../data/apo3_5m/' + Instr_name + "/" + row)
+            data_name = row.split('.dat')[0]
+            filt_wavelength = filt["col1"]
+            filt_throughput = filt["col2"]
+            filt_interpolated = interpolate.InterpolatedUnivariateSpline(
+                filt_wavelength, filt_throughput)
+            setattr(Instrument, data_name, filt_interpolated)
 
-        :return:
-        """
-        if self.lunar_phase < 0.25:
-            emission_file = 'moon_00.txt'
-        elif 0.25 <= self.lunar_phase < 0.75:
-            emission_file = 'moon_50.txt'
-        elif self.lunar_phase >= 0.75:
-            emission_file = 'moon_100.txt'
+            filt_range = [filt["col1"][0], filt["col1"][len(filt["col1"]) - 1]]
+            range_name = row.split('filter.dat')[0] + 'range'
+            setattr(Instrument, range_name, filt_range)
 
-        emission = np.loadtxt('../data/sky/' + emission_file)
-        sky_emission = interpolate.InterpolatedUnivariateSpline(
-            emission[:, 0] * 10, (emission[:, 1] * 0.0001 * 10E-4))
-        return sky_emission
+        qefficiency_wavelength = efficiency["col1"] * 10  # multiplied by 10 to turn to angstroms
+        qefficiency_percent = efficiency["col2"] / 100  # divided by 100 to turn into decimal
 
+        efficiency_interpolated = interpolate.InterpolatedUnivariateSpline(
+            qefficiency_wavelength, qefficiency_percent)
 
-class Target:
-    """Object to contain attributes of a target given an apparent magnitude, filter and mag system for given mag,
-    and effective temprature, """
+        if para['isImager'][0] == 0:
+            self.dispersion = para['Dispersion']
 
-    def __init__(self, mag, magsystem, filtRange, sed=None, temp=5778, location=None):
-        """
-
-        :param mag:
-        :param magsystem:
-        :param filtRange:
-        :param sed:
-        :param temp:
-        :param location:
-        """
-        if magsystem == 'VEGAMAG':
-            sys = units.VEGAMAG
-        elif magsystem == 'stmag':
-            sys = u.STmag
-        elif magsystem == 'abnu':
-            sys = u.ABmag
-
-        vega = SourceSpectrum.from_vega()
-
-        self.mag = mag
-        self.SED = sed
-        self.temp = temp
-        self.inputFlux = units.convert_flux(filtRange, mag * sys, units.FLAM, vegaspec=vega)
-        self.range = filtRange
-        self.F_lambda = self.starF_lambda()
-
-    def starF_lambda(self):
-        """
-
-        """
-        sp = SourceSpectrum(BlackBody1D, temperature=self.temp * u.K)
-        sp_new = sp / np.mean(sp(self.range * u.AA, flux_unit=units.FLAM) / self.inputFlux)
-        x = sp_new(range(1000, 30000) * u.AA, flux_unit=units.FLAM)
-        F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000, 30000), x)
-        return F_lambda
-
+        self.efficiency = efficiency_interpolated
+        self.readout_noise = para['readoutnoise[electrons]'][0]
+        self.filter_num = para['FilterNum'][0]
+        self.gain = para['gain'][0]
+        self.scale = para['plate_scale[arcsec/pix]'][0]
 
 class Observation:
-    """Creates object for an observation given an  certain telescope, instrument, sky conditions, and target"""
+    """Creates object for an observation given a certain telescope, instrument, sky conditions, and target"""
 
     def __init__(self, target, sky, instrument, telescope=None):
         """
@@ -212,57 +170,151 @@ class Observation:
     #         # PLOT SHIT HERE
 
 
-class Instrument:
-    """Instantiates an object of the Instrument class. This object will contain all the attributes of the selected
-    instrument
+class Sky:
+    """Object representing the sky flux and transmission.
 
-    Args:
-        Instr_name(str): Name of Instrument to be used.
+    :param lunar_phase: Defines the lunar phase (0 is new and 1 is full). Defaults to 0.
+    :type lunar_phase: float, optional
+    :param seeing: Defines the seeing (in arcseconds). Defaults to 1.
+    :type seeing: float, optional
+    :param airmass: Defines the airmass. Defaults to 1.
+    :type airmass: float, optional
 
-    Attributes:
-        efficiency(object): UnivariateInterpolatedSpline of instrument efficiency.
-        readout_noise(float): Value of instrument readout noise
-        filter_num(int): Number of filters for instrument
-        gain(float): Gain of instrument
+    """
+
+    def __init__(self,
+                 lunar_phase=0,
+                 seeing=1,
+                 airmass=1
+                 ):
+        """Constructor method for the Sky class.
+
+        """
+        self.lunar_phase = lunar_phase
+        self.airmass = airmass
+        self.seeing = seeing
+        self.sky_transmission = self.transmission()
+        self.sky_emission = self.emission()
+
+    def transmission(self):
+        """Method to obtain the transmission of the sky.
+
+        :return: The transmission of the sky interpolated.
+        :rtype: Interpolated object
         """
 
-    def __init__(self, Instr_name):
+        #Get the appropriate data file based on the airmass.
+        if self.airmass <= 1.25:
+            trans_file = 'trans_1.txt'
+        elif 1.75 > self.airmass > 1.25:
+            trans_file = 'trans_1_5.txt'
+        elif 1.75 <= self.airmass < 2.25:
+            trans_file = 'trans_2.txt'
+        elif self.airmass >= 2.25:
+            trans_file = 'trans_2_5.txt'
+
+        path_to_dir = dirname(abspath(__file__)) + '/data/Sky/'
+
+        transmission = np.loadtxt(path_to_dir + trans_file)
+        sky_transmission = interpolate.InterpolatedUnivariateSpline(
+            transmission[:, 0] * 10, transmission[:, 1])
+
+        return sky_transmission
+
+    def emission(self):
+        """Method to obtain the emission from the sky.
+
+        :return: The sky emission of the sky interpolated.
+        :rtype: Interpolated object
         """
 
-        :param Instr_name:
+        #Get the appropriate transmission file. Based on the lunar phase.
+        if self.lunar_phase < 0.25:
+            emission_file = 'moon_00.txt'
+        elif 0.25 <= self.lunar_phase < 0.75:
+            emission_file = 'moon_50.txt'
+        elif self.lunar_phase >= 0.75:
+            emission_file = 'moon_100.txt'
+
+        path_to_dir = dirname(abspath(__file__)) + '/data/Sky/'
+
+        emission = np.loadtxt(path_to_dir + emission_file)
+
+        sky_emission = interpolate.InterpolatedUnivariateSpline(
+            emission[:, 0] * 10, (emission[:, 1] * 0.0001 * 10E-4))
+
+        return sky_emission
+
+
+class Target:
+    """Object that represents the target which you wish to observe.
+
+    :param magnitude: The magnitude of the object which you are observing.
+    :type magnitude: float
+    :param mag_system: The magnitude system used to measure the above magnitude.
+    :type mag_system: str
+    :param filter_range: The range (in Angstroms) which you wish to observe in.
+    :type filter_range: tuple
+    :param sed: The spectral energy distribution of the target star. Defaults to None.
+    :type sed: Interpolated object, optional
+    :param temp: The temperature of the target star (in Kelvin). Defaults to 5778.
+    :type temp: float, optional
+
+    """
+
+    def __init__(self,
+                 magnitude,
+                 mag_system,
+                 filter_range,
+                 sed=None,
+                 temp=5778
+                 ):
+        """Constructor for the target class.
+
         """
-        para = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_param.data')
 
-        efficiency = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_qe.data')
+        #Define the magnitude system (as inputted by the user).
+        if mag_system == 'VEGAMAG':
+            sys = units.VEGAMAG
+        elif mag_system == 'stmag':
+            sys = u.STmag
+        elif mag_system == 'abnu':
+            sys = u.ABmag
 
-        for row in para['Filters']:
-            filt = ascii.read('../data/apo3_5m/' + Instr_name + "/" + row)
-            data_name = row.split('.dat')[0]
-            filt_wavelength = filt["col1"]
-            filt_throughput = filt["col2"]
-            filt_interpolated = interpolate.InterpolatedUnivariateSpline(
-                filt_wavelength, filt_throughput)
-            setattr(Instrument, data_name, filt_interpolated)
+        vega = SourceSpectrum.from_vega()
 
-            filt_range = [filt["col1"][0], filt["col1"][len(filt["col1"]) - 1]]
-            range_name = row.split('filter.dat')[0] + 'range'
-            setattr(Instrument, range_name, filt_range)
+        self.magnitude = magnitude
+        self.mag_system = mag_system
+        self.SED = sed
+        self.temp = temp
+        self.inputFlux = units.convert_flux(filter_range, magnitude * sys, units.FLAM, vegaspec=vega)
+        self.range = filter_range
+        self.F_lambda = self.starF_lambda()
 
-        qefficiency_wavelength = efficiency["col1"] * 10  # multiplied by 10 to turn to angstroms
-        qefficiency_percent = efficiency["col2"] / 100  # divided by 100 to turn into decimal
+    def __str__(self):
+        """Print magnitude and magnitude system of the star.
 
-        efficiency_interpolated = interpolate.InterpolatedUnivariateSpline(
-            qefficiency_wavelength, qefficiency_percent)
+        :return: The magnitude and magnitude system of the star.
+        :rtype: str
 
-        if para['isImager'][0] == 0:
-            self.dispersion = para['Dispersion']
+        """
 
-        self.efficiency = efficiency_interpolated
-        self.readout_noise = para['readoutnoise[electrons]'][0]
-        self.filter_num = para['FilterNum'][0]
-        self.gain = para['gain'][0]
-        self.scale = para['plate_scale[arcsec/pix]'][0]
+        return "You are observing a {} magnitude star using the {} system."\
+            .format(self.magnitude,self.mag_system)
 
+    def f_lambda(self):
+        """Method that calculates f_lambda beside on a black body spectrum, scaled to Vega.
+
+        :return: The flux per wavelength (cgs) of the target star
+        :rtype: Interpolated object
+
+        """
+        sp = SourceSpectrum(BlackBody1D, temperature=self.temp * u.K)
+        sp_new = sp / np.mean(sp(self.range * u.AA, flux_unit=units.FLAM) / self.inputFlux)
+        x = sp_new(range(1000, 30000) * u.AA, flux_unit=units.FLAM)
+        f_lambda = interpolate.InterpolatedUnivariateSpline(range(1000, 30000), x)
+
+        return f_lambda
 
 def s_integradeInterpolate(functions, interpolation_range):
     """Takes multiple interpolation objects and multiplies them together then reinterpolates to output a single
