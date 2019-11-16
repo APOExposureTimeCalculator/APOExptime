@@ -5,8 +5,9 @@ The following is my best attempt to explain the structure of the package and how
 
 The ``inputs`` Module
 =====================
+The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import ``APOExptime``, it automatically imports the ``inputs`` module. In this manner, you only need to call ``inputs.class`` when using the module. Let's take a look at the ``Instrument`` class.
 
-.. automodule:: APOExptime.inputs
+.. autoclass:: APOExptime.inputs.Instrument
     :members:
     :undoc-members:
     :show-inheritance: bysource

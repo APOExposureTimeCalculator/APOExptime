@@ -34,10 +34,9 @@
   <div class="section" id="documentation">
 <h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
 <p>The following is my best attempt to explain the structure of the package and how it works. The package only includes one module called <code class="docutils literal notranslate"><span class="pre">inputs</span></code> and it contains all the classes and functions necessary to be able to calculate an exposure time.</p>
-<div class="section" id="module-APOExptime.inputs">
-<span id="the-inputs-module"></span><h2>The <code class="docutils literal notranslate"><span class="pre">inputs</span></code> Module<a class="headerlink" href="#module-APOExptime.inputs" title="Permalink to this headline">¶</a></h2>
-<p>Created on Tue Oct  8 15:13:34 2019
-&#64;author: Alexander, Bryson, Roger, Hassan, Manny</p>
+<div class="section" id="the-inputs-module">
+<h2>The <code class="docutils literal notranslate"><span class="pre">inputs</span></code> Module<a class="headerlink" href="#the-inputs-module" title="Permalink to this headline">¶</a></h2>
+<p>The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import <code class="docutils literal notranslate"><span class="pre">APOExptime</span></code>, it automatically imports the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> module. In this manner, you only need to call <code class="docutils literal notranslate"><span class="pre">inputs.class</span></code> when using the module. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> class.</p>
 <dl class="class">
 <dt id="APOExptime.inputs.Instrument">
 <em class="property">class </em><code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">Instrument</code><span class="sig-paren">(</span><em class="sig-param">Instr_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Instrument" title="Permalink to this definition">¶</a></dt>
@@ -95,144 +94,6 @@ instrument</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="APOExptime.inputs.Observation">
-<em class="property">class </em><code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">Observation</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">sky</em>, <em class="sig-param">instrument</em>, <em class="sig-param">telescope=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Observation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Observation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Creates object for an observation given a certain telescope, instrument, sky conditions, and target</p>
-<dl class="method">
-<dt id="APOExptime.inputs.Observation.Npix">
-<code class="sig-name descname">Npix</code><span class="sig-paren">(</span><em class="sig-param">instrument</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Observation.Npix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Observation.Npix" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>instrument</strong> – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="APOExptime.inputs.Observation.SNfromTime">
-<code class="sig-name descname">SNfromTime</code><span class="sig-paren">(</span><em class="sig-param">exptime</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Observation.SNfromTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Observation.SNfromTime" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>exptime</strong> – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="APOExptime.inputs.Observation.TimefromSN">
-<code class="sig-name descname">TimefromSN</code><span class="sig-paren">(</span><em class="sig-param">SN</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Observation.TimefromSN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Observation.TimefromSN" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="APOExptime.inputs.Observation.counts">
-<code class="sig-name descname">counts</code><span class="sig-paren">(</span><em class="sig-param">source</em>, <em class="sig-param">instrument</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Observation.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Observation.counts" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="APOExptime.inputs.Observation.skycounts">
-<code class="sig-name descname">skycounts</code><span class="sig-paren">(</span><em class="sig-param">sky</em>, <em class="sig-param">instrument</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Observation.skycounts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Observation.skycounts" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="APOExptime.inputs.Sky">
-<em class="property">class </em><code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">Sky</code><span class="sig-paren">(</span><em class="sig-param">lunar_phase=0</em>, <em class="sig-param">seeing=1</em>, <em class="sig-param">airmass=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Sky"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Sky" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Object representing the sky flux and transmission.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lunar_phase</strong> (<em>float</em><em>, </em><em>optional</em>) – Defines the lunar phase (0 is new and 1 is full). Defaults to 0.</p></li>
-<li><p><strong>seeing</strong> (<em>float</em><em>, </em><em>optional</em>) – Defines the seeing (in arcseconds). Defaults to 1.</p></li>
-<li><p><strong>airmass</strong> (<em>float</em><em>, </em><em>optional</em>) – Defines the airmass. Defaults to 1.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="APOExptime.inputs.Sky.emission">
-<code class="sig-name descname">emission</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Sky.emission"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Sky.emission" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to obtain the emission from the sky.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The sky emission of the sky interpolated.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Interpolated object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="APOExptime.inputs.Sky.transmission">
-<code class="sig-name descname">transmission</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Sky.transmission"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Sky.transmission" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to obtain the transmission of the sky.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The transmission of the sky interpolated.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Interpolated object</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="APOExptime.inputs.Target">
-<em class="property">class </em><code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">Target</code><span class="sig-paren">(</span><em class="sig-param">magnitude</em>, <em class="sig-param">mag_system</em>, <em class="sig-param">filter_range</em>, <em class="sig-param">sed=None</em>, <em class="sig-param">temp=5778</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Target"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Target" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Object that represents the target which you wish to observe.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>magnitude</strong> (<em>float</em>) – The magnitude of the object which you are observing.</p></li>
-<li><p><strong>mag_system</strong> (<em>str</em>) – The magnitude system used to measure the above magnitude.</p></li>
-<li><p><strong>filter_range</strong> (<em>tuple</em>) – The range (in Angstroms) which you wish to observe in.</p></li>
-<li><p><strong>sed</strong> (<em>Interpolated object</em><em>, </em><em>optional</em>) – The spectral energy distribution of the target star. Defaults to None.</p></li>
-<li><p><strong>temp</strong> (<em>float</em><em>, </em><em>optional</em>) – The temperature of the target star (in Kelvin). Defaults to 5778.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="method">
-<dt id="APOExptime.inputs.Target.f_lambda">
-<code class="sig-name descname">f_lambda</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Target.f_lambda"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Target.f_lambda" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method that calculates f_lambda beside on a black body spectrum, scaled to Vega.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>The flux per wavelength (cgs) of the target star</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Interpolated object</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="function">
-<dt id="APOExptime.inputs.s_integradeInterpolate">
-<code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">s_integradeInterpolate</code><span class="sig-paren">(</span><em class="sig-param">functions</em>, <em class="sig-param">interpolation_range</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#s_integradeInterpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.s_integradeInterpolate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes multiple interpolation objects and multiplies them together then reinterpolates to output a single
-interpolation object :param functions: :param interpolation_range: :return:</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="APOExptime.inputs.sky_integradeInterpolate">
-<code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">sky_integradeInterpolate</code><span class="sig-paren">(</span><em class="sig-param">functions</em>, <em class="sig-param">interpolation_range</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#sky_integradeInterpolate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.sky_integradeInterpolate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes multiple interpolation objects and multiplies them together then reinterpolates to output a single
-interpolation object :param functions: :param interpolation_range: :return:</p>
-</dd></dl>
-
 </div>
 </div>
 
@@ -249,7 +110,7 @@ interpolation object :param functions: :param interpolation_range: :return:</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Documentation</a><ul>
-<li><a class="reference internal" href="#module-APOExptime.inputs">The <code class="docutils literal notranslate"><span class="pre">inputs</span></code> Module</a></li>
+<li><a class="reference internal" href="#the-inputs-module">The <code class="docutils literal notranslate"><span class="pre">inputs</span></code> Module</a></li>
 </ul>
 </li>
 </ul>

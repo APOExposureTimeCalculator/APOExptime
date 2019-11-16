@@ -9,16 +9,24 @@ from synphot import SourceSpectrum
 from astropy.io import ascii
 from scipy import interpolate
 
+"""The ``inputs`` module.
+
+This module contains all the necessary functions and method needed to calculate your exposure time.
+    compute the exposure time need to reach a desired signal to noise
+
+"""
 
 class Instrument:
-    """Instantiates an object of the Instrument class. This object will contain all the attributes of the selected
-    instrument
+    """Object representing the instrument used.
+
 
     Args:
-        Instr_name(str): Name of Instrument to be used.
+        instr_name(str): Name of Instrument to be used.
 
     Attributes:
-        efficiency(object): UnivariateInterpolatedSpline of instrument efficiency.
+    ------------
+        efficiency : object
+            UnivariateInterpolatedSpline of instrument efficiency.
         readout_noise(float): Value of instrument readout noise
         filter_num(int): Number of filters for instrument
         gain(float): Gain of instrument
