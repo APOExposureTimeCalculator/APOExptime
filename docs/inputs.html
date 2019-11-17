@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Documentation &#8212; APOExptime 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="About the Package" href="intro.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<p>The following is my best attempt to explain the structure of the package and how it works. The package only includes one module called <code class="docutils literal notranslate"><span class="pre">inputs</span></code> and it contains all the classes and functions necessary to be able to calculate an exposure time.</p>
+<div class="section" id="the-inputs-module">
+<h2>The <code class="docutils literal notranslate"><span class="pre">inputs</span></code> Module<a class="headerlink" href="#the-inputs-module" title="Permalink to this headline">¶</a></h2>
+<p>The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import <code class="docutils literal notranslate"><span class="pre">APOExptime</span></code>, it automatically imports the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> module. In this manner, you only need to call <code class="docutils literal notranslate"><span class="pre">inputs.class</span></code> when using the module. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> class.</p>
+<dl class="class">
+<dt id="APOExptime.inputs.Instrument">
+<em class="property">class </em><code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">Instrument</code><span class="sig-paren">(</span><em class="sig-param">Instr_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Instrument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Instantiates an object of the Instrument class. This object will contain all the attributes of the selected
+instrument</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>Instr_name</strong> (<em>str</em>) – Name of Instrument to be used.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="APOExptime.inputs.Instrument.efficiency">
+<code class="sig-name descname">efficiency</code><a class="headerlink" href="#APOExptime.inputs.Instrument.efficiency" title="Permalink to this definition">¶</a></dt>
+<dd><p>UnivariateInterpolatedSpline of instrument efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="APOExptime.inputs.Instrument.readout_noise">
+<code class="sig-name descname">readout_noise</code><a class="headerlink" href="#APOExptime.inputs.Instrument.readout_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value of instrument readout noise</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="APOExptime.inputs.Instrument.filter_num">
+<code class="sig-name descname">filter_num</code><a class="headerlink" href="#APOExptime.inputs.Instrument.filter_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of filters for instrument</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="APOExptime.inputs.Instrument.gain">
+<code class="sig-name descname">gain</code><a class="headerlink" href="#APOExptime.inputs.Instrument.gain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gain of instrument</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/3_5.JPG" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Documentation</a><ul>
+<li><a class="reference internal" href="#the-inputs-module">The <code class="docutils literal notranslate"><span class="pre">inputs</span></code> Module</a></li>
+</ul>
+</li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Manny, Alexander, Bryson, Rogelio, Hasan.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/inputs.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
