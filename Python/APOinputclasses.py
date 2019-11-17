@@ -61,7 +61,7 @@ class Sky:
 
         emission = np.loadtxt('../data/sky/' + emission_file)
         sky_emission = interpolate.InterpolatedUnivariateSpline(
-            emission[:, 0] * 10, (emission[:, 1] * 0.0001 * 10E-4))
+            emission[:, 0] * 10, (emission[:, 1] * 1E-8))
         return sky_emission
 
 
@@ -126,6 +126,7 @@ class Observation:
         self.seeing = sky.seeing
         self.rdnoise = instrument.readout_noise
         self.isImager = instrument.isImager
+        self.gain = instrument.gain
 
         self.counts(self.source, instrument)
         self.skycounts(self.skySED, instrument)
@@ -153,7 +154,7 @@ class Observation:
                     interpolationrange = range(integrate_range[0], integrate_range[1])
                     s_integrade = s_integradeInterpolate([sky, self.detector_qe, self.skyTransmission, filter_profile],
                                                          interpolationrange)
-                    s_prime_dlam = [self.telescope_area * ((self.seeing / 2) ** 2) * s_integrade[1], s_integrade[0]]
+                    s_prime_dlam = [self.telescope_area * (np.pi*(self.seeing / 2) ** 2) * s_integrade[1], s_integrade[0]]
                     s_prime = np.trapz(s_prime_dlam[0], s_prime_dlam[1])
                     count_name = row.replace('_filter', '') + '_skycountrate'
                     setattr(Observation, count_name, s_prime)
@@ -164,7 +165,7 @@ class Observation:
             s_integrade = s_integradeInterpolate([sky, self.detector_qe, self.skyTransmission],
                                                  interpolationrange)
 
-            self.sky_prime_dlam = [(self.telescope_area * ((self.seeing / 2) ** 2)  * s_integrade[1]),
+            self.sky_prime_dlam = [(self.telescope_area * (np.pi*(self.seeing / 2) ** 2)  * s_integrade[1]),
                                    s_integrade[0]]
 
     def counts(self, source, instrument):
@@ -220,7 +221,7 @@ class Observation:
         else:
             SN_d_lam = (self.s_prime_dlam[0] * exptime) / np.sqrt(
                 self.s_prime_dlam[0] * exptime + self.sky_prime_dlam[0] * exptime
-                + (self.Npix * self.rdnoise ** 2))
+                + (self.Npix * (self.gain*self.rdnoise) ** 2))
             returnList = [np.array(self.s_prime_dlam[1]), SN_d_lam]
 
         return returnList
