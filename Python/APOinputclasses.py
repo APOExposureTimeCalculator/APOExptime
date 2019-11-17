@@ -25,6 +25,7 @@ class Sky:
         self.lunar_phase = lunar_phase
         self.airmass = airmass
         self.seeing = seeing
+
         self.sky_transmission = self.transmission()
         self.sky_emission = self.emission()
 
@@ -69,7 +70,7 @@ class Target:
     """Object to contain attributes of a target given an apparent magnitude, filter and mag system for given mag,
     and effective temprature, """
 
-    def __init__(self, mag, magsystem, filtRange, sed=None, temp=5778, location=None):
+    def __init__(self, mag, magsystem, filtRange, sed=None, temp=5778):
         """
 
         :param mag:
@@ -212,7 +213,7 @@ class Observation:
                     skyCount = getattr(self, row.replace('source', 'sky'))
 
                     SN = (sourceCount * exptime) / np.sqrt(sourceCount * exptime + skyCount * exptime
-                                                           + self.Npix * self.rdnoise ** 2)
+                                                           + self.Npix * (self.gain*self.rdnoise) ** 2)
                     SNname = row.replace('sourcecountrate', 'SN')
                     returnList.append([SN, SNname])
 
@@ -237,7 +238,7 @@ class Observation:
                     skyCount = getattr(self, row.replace('source', 'sky'))
 
                     t = (1. / (2. * sourceCount ** 2)) * (SN ** 2 * (sourceCount + skyCount) + np.sqrt(SN ** 4 * (
-                            sourceCount + skyCount) ** 2 + 4. * self.Npix * (sourceCount * SN * self.rdnoise) ** 2))
+                            sourceCount + skyCount) ** 2 + 4. * self.Npix * (sourceCount * SN * (self.gainself.rdnoise)) ** 2))
 
                     Tname = row.replace('sourcecountrate', 'time')
                     returnList.append([t, Tname])
@@ -247,7 +248,7 @@ class Observation:
             t_d_lam = (1. / (2. * self.s_prime_dlam[0] ** 2)) * (
                     SN ** 2 * (self.s_prime_dlam[0] + self.sky_prime_dlam[0]) + np.sqrt(SN ** 4 * (
                     self.s_prime_dlam[0] + self.sky_prime_dlam[0]) ** 2 + 4. * self.Npix * (self.s_prime_dlam[
-                                                                                                0] * SN * self.rdnoise) ** 2))
+                                                                                                0] * SN * (self.gain*self.rdnoise)) ** 2))
             returnList = [np.array(self.s_prime_dlam[1]), t_d_lam]
 
         return returnList
@@ -269,11 +270,7 @@ class Instrument:
         """
 
     def __init__(self, Instr_name):
-        """
 
-        :param Instr_name:
-
-        """
         para = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_param.data')
 
         efficiency = ascii.read('../data/apo3_5m/' + Instr_name + "/" + Instr_name + '_qe.data')
