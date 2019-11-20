@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 sky = Sky(lunar_phase=0, seeing=1.5)
 star = Target(10, 'VEGAMAG', [5000, 6000], temp=6000)
-inst1 = Instrument('DIS')
+inst1 = Instrument('Arces')
 
 # inst2 = Instrument('Arctic')
 
@@ -22,7 +22,7 @@ t1 = ob1.TimefromSN(100)
 #plt.plot(t1[0], t1[1])
 # plt.plot(times[0], times[1])
 
-plt.plot(t1[1][0], t1[1][1])
+plt.plot(t1[0][0], t1[0][1])
 # plt.plot(times[0], times[1])
 
 
