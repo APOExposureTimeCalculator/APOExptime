@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Oct  8 15:13:34 2019
-@author: Alexander, Bryson, Roger, Hassan, Manny
-"""
+
 from synphot.models import BlackBody1D
 from synphot import units
 from astropy import units as u
@@ -13,15 +10,44 @@ from scipy import interpolate
 
 
 class Sky:
-    """Object to contain attributes for sky conditions, given an airmass, seeing, and moon phase"""
+    """Object that represents the sky.
+
+    The `Sky` class is used to compute the transmission and emission of the sky. The transmission of the sky is inferred
+    from the airmass, and the emission of the sky is based on the lunar phase.
+
+    Parameters
+    ----------
+    lunar_phase : float, optional
+        Floating point that represents the lunar phase where 0 means new moon and 1 is a full moon. Defaults to 0.
+
+    seeing : float, optional
+        The seeing. This parameter is used to calculate the background area in the S/N ratio equation.  Defaults to 1
+
+    airmass : float, optional
+        The airmass of the target. Large observatories typically have an airmass ~ 1. Defaults to 1.
+
+    Attributes
+    ----------
+
+    lunar_phase : float
+        The phase of the moon. 0 is a new moon and 1 is a full moon.
+
+    airmass : float
+        The airmass. This parameter is related to the altitude of the target.
+
+    seeing : float
+        The seeing parameter. For large aperature telescopes, this is typically 1 arcsecond.
+
+    sky_transmission : Interpolated Object
+        The transmission of the sky interpolated over a predetermined wavelength range.
+
+    sky_emission : Interpolated Object
+        The emission of the sky interpolated over a predetermined wavelength range
+
+    """
 
     def __init__(self, lunar_phase=0, seeing=1, airmass=1):
-        """
 
-        :param lunar_phase:
-        :param seeing:
-        :param airmass:
-        """
         self.lunar_phase = lunar_phase
         self.airmass = airmass
         self.seeing = seeing
@@ -30,10 +56,18 @@ class Sky:
         self.sky_emission = self.emission()
 
     def transmission(self):
+        """Determine the transmission of the sky.
+
+        The transmission of the sky is determined by the seeing. The package includes data files which read the
+        appropriate transmission file based on the airmass.
+
+        Returns
+        -------
+        sky_transmission : Interpolated Object
+            The transmission of the sky interpolated over a given wavelength range specified in the data files.
         """
 
-        :return:
-        """
+        # Find the appropriate airmass file.
         if self.airmass <= 1.25:
             trans_file = 'trans_1.txt'
         elif 1.75 > self.airmass > 1.25:
@@ -43,16 +77,29 @@ class Sky:
         elif self.airmass >= 2.25:
             trans_file = 'trans_2_5.txt'
 
-        transmission = np.loadtxt('../data/sky/' + trans_file)
+        # Load the data file
+        transmission = np.loadtxt('../data/Sky/' + trans_file)
+
+        # Interpolate the transmission
         sky_transmission = interpolate.InterpolatedUnivariateSpline(
             transmission[:, 0] * 10, transmission[:, 1])
+
+        # Return the interpolated transmission.
         return sky_transmission
 
     def emission(self):
+        """Determines the emission of the sky.
+
+        The emission of the sky is primarily based on the lunar phase. This method computes the emission (photon flux)
+        of the sky per wavelength based on the ``lunar_phase`` parameter.
+
+        Returns
+        -------
+        sky_emission : Interpolated Object
+            The emission of the sky interpolated over a given wavelength range specified in the data files.
         """
 
-        :return:
-        """
+        # Find the appropriate date files.
         if self.lunar_phase < 0.25:
             emission_file = 'moon_00.txt'
         elif 0.25 <= self.lunar_phase < 0.75:
@@ -60,64 +107,156 @@ class Sky:
         elif self.lunar_phase >= 0.75:
             emission_file = 'moon_100.txt'
 
+        # Load the data files
         emission = np.loadtxt('../data/sky/' + emission_file)
+
+        # Interpolate
         sky_emission = interpolate.InterpolatedUnivariateSpline(
             emission[:, 0] * 10, (emission[:, 1] * 1E-8))
+
+        # Return the interpolated emission
         return sky_emission
 
 
 class Target:
-    """Object to contain attributes of a target given an apparent magnitude, filter and mag system for given mag,
-    and effective temprature, """
+    """This object represents the target star which you wish to compute an exposure time for.
 
-    def __init__(self, mag, magsystem, filtRange, sed=None, temp=5778):
-        """
+    This class is intended to be used for unresolved or point source objects (i.e., stars) and we do not recommend using
+    it for extended objects. The class can compute the spectrum of your target by taking the temperature and scaling a
+    black body spectrum to match the specified magnitude.
 
-        :param mag:
-        :param magsystem:
-        :param filtRange:
-        :param sed:
-        :param temp:
-        :param location:
-        """
-        if magsystem == 'VEGAMAG':
+    Parameters
+    ----------
+    mag : float
+        The magnitude of the target object.
+
+    magsystem : str
+        The magnitude system used in the `mag` parameter (i.e., VEGAMAG).
+
+    filt_range : tuple
+        The wavelength range of the filter you wish to observe in.
+
+    sed : arr, optional
+        The spectral energy distribution of the target object. Defaults to None.
+
+    temp : float, optional
+        The temperature (K) of the target object which is used to compute a black body spectrum. Defaults to 5778.
+
+    Attributes
+    ----------
+    mag : float
+        The magnitude of the target object.
+
+    magsystem : str
+        The magnitude system used in the `mag` parameter (i.e., VEGAMAG).
+
+    filt_range : tuple
+        The wavelength range of the filter you wish to observe in.
+
+    sed : arr, optional
+        The spectral energy distribution of the target object.
+
+    temp : float, optional
+        The temperature (K) of the target object which is used to compute a black body spectrum.
+
+    """
+
+    def __init__(self, mag, magsystem, filt_range, sed=None, temp=5778):
+
+        # Define the magnitude system.
+        if magsystem.lower() == 'vegamag':
             sys = units.VEGAMAG
-        elif magsystem == 'stmag':
+        elif magsystem.lower() == 'stmag':
             sys = u.STmag
-        elif magsystem == 'abnu':
+        elif magsystem.lower() == 'abnu':
             sys = u.ABmag
 
+        # Get Vega's spectrum.
         vega = SourceSpectrum.from_vega()
 
+        # Set attributes.
         self.mag = mag
         self.SED = sed
         self.temp = temp
-        self.inputFlux = units.convert_flux(filtRange, mag * sys, units.FLAM, vegaspec=vega)
-        self.range = filtRange
+        self.inputFlux = units.convert_flux(filt_range, mag * sys, units.FLAM, vegaspec=vega)
+        self.range = filt_range
         self.F_lambda = self.starF_lambda()
 
     def starF_lambda(self):
+        """Compute the wavelength flux of the target object.
+
+        This method creates a black body spectrum of temperature ``temp`` and scaled that spectrum to match the flux of
+        a ``mag`` magnitude object.
+
+        Returns
+        --------
+        F_lambda : Interpolated Object
+            The spectrum of the star interpolated from 1000 A to 30000 A.
         """
 
-        """
+        # Get the black body spectrum of an object at temperature "temp".
         sp = SourceSpectrum(BlackBody1D, temperature=self.temp * u.K)
+
+        # Scale that black body to match the flux of a "mag" magnitude star.
         sp_new = sp / np.mean(sp(self.range * u.AA, flux_unit=units.FLAM) / self.inputFlux)
         x = sp_new(range(1000, 30000) * u.AA, flux_unit=units.FLAM)
+
+        # Interpolate the flux.
         F_lambda = interpolate.InterpolatedUnivariateSpline(range(1000, 30000), x)
+
+        # Return the interpolated flux.
         return F_lambda
 
 
 class Observation:
-    """Creates object for an observation given an  certain telescope, instrument, sky conditions, and target"""
+    """Creates object for an observation given a certain telescope, instrument, sky conditions, and target.
+
+    This object takes in the three classes specified above to compute a variety of things such as the signal/noise, the
+    count rate from the source, the count rate of the sky, etc.
+
+    Parameters
+    ----------
+    target : Object
+        The ``APOinputclasses.Target`` class.
+
+    sky : Object
+        The ``APOinputclasses.Sky`` class.
+
+    instrument : Object
+        The ``APOinputclasses.Instrument`` class.
+
+    Attributes
+    ----------
+    detector_qe : Interpolated Object
+        The quantum efficiency of the detector.
+
+    telescope_area : float
+        The light collecting area of the telescope (in cgs).
+
+    source : Interpolated Object
+        The flux of the target object interpolated.
+
+    skySED : Interpolated Object
+        The emission of the sky interpolated.
+
+    skyTransmission : Interpolated Object
+        The transmission of the sky interpolated.
+
+    seeing : float
+        The seeing.
+
+    rdnoise : float
+        The readout noise of the instrument.
+
+    isImager : bool
+        True if the object is an imager. False if it is a spectrograph.
+
+    gain : float
+        The gain of the instrument.
+    """
 
     def __init__(self, target, sky, instrument, telescope=None):
-        """
 
-        :param target:
-        :param sky:
-        :param instrument:
-        :param telescope:
-        """
         # telescope_transm = telescope.transmission
         self.detector_qe = instrument.efficiency
         self.telescope_area = (175 ** 2) * np.pi
@@ -134,18 +273,45 @@ class Observation:
         self.Npix = self.Npix(instrument)
 
     def Npix(self, instrument):
+        """The number of pixels covered by the source and sky.
+
+        The number of pixels is used to compute the area covered by the sky on the detector as well as the amount of
+        pixels that contributed to the readout noise. This method takes the seeing and the plate scale of the instrument
+        to compute Npix.
+
+        Parameters
+        ----------
+        instrument : object
+            The ``APOinputclasses.Instrument`` class.
+
+        Returns
+        -------
+        Npix : float
+            The number of pixels.
+
         """
 
-        :param instrument:
-        :return:
-        """
+        # Determine whether the instrument is an imager or a spectrograph.
         if self.isImager == 1:
             Npix = np.pi * ((self.seeing / 2) ** 2) / (instrument.scale ** 2)
         else:
             Npix = instrument.Npix_lam(range(instrument.range[0], instrument.range[1]))
+
+        # Return Npix
         return Npix
 
     def skycounts(self, sky, instrument):
+        """Computes the amount of counts received by the sky.
+
+        Parameters
+        ----------
+        sky : object
+            The ``APOinputclasses.Sky`` class.
+
+        instrument : object
+            The ``APOinputclasses.Instrument`` class.
+
+        """
         att = dir(instrument)
         if self.isImager == 1:
             for row in att:
@@ -166,10 +332,20 @@ class Observation:
             s_integrade = s_integradeInterpolate([sky, self.detector_qe, self.skyTransmission],
                                                  interpolationrange)
 
-            self.sky_prime_dlam = [(self.telescope_area * (np.pi*(self.seeing / 2) ** 2)  * s_integrade[1]),
+            self.sky_prime_dlam = [(self.telescope_area * (np.pi*(self.seeing / 2) ** 2) * s_integrade[1]),
                                    s_integrade[0]]
 
     def counts(self, source, instrument):
+        """The counts received from the source.
+
+        Parameters
+        -----------
+        source : Interpolated Object
+            The wavelength flux received from the source.
+
+        instrument : object
+            The ``APOinputclasses.Instrument`` class.
+        """
         att = dir(instrument)
         if self.isImager == 1:
             for row in att:
@@ -199,11 +375,19 @@ class Observation:
                                          s_integrade[0]]
 
     def SNfromTime(self, exptime):
+        """Computes the signal to noise ratio for a given exposure time.
+
+        Parameters
+        ----------
+        exptime : float
+            The exposure time for which you wish to compute the signal to noise ratio.
+
+        Returns
+        --------
+        returnList : arr
+
         """
 
-        :param exptime:
-        :return:
-        """
         att = dir(self)
         returnList = []
         if self.isImager == 1:
@@ -229,6 +413,19 @@ class Observation:
         # PLOT SHIT HERE
 
     def TimefromSN(self, SN):
+        """Computes the exposure time need to achieve a desired signal to noise ratio.
+
+        Parameters
+        ----------
+        SN : float
+            The desired signal to noise ratio.
+
+        Returns
+        --------
+        returnList : arr
+
+        """
+
         att = dir(self)
         returnList = []
         if self.isImager == 1:
@@ -256,18 +453,39 @@ class Observation:
 
 
 class Instrument:
-    """Instantiates an object of the Instrument class. This object will contain all the attributes of the selected
-    instrument
+    """Object that represents the instrument used to observe.
 
-    Args:
-        Instr_name(str): Name of Instrument to be used.
+    It is important to note that since this exposure time calculator is designed for the Astrophysical Research
+    Consortium (ARC) 3.5m telescope, the list of instruments available is exclusive to this telescope. That list is::
+        * ARCTIC        (Imager)
+        * AGILE         (Imager)
+        * ARCES         (Spectrograph)
+        * DIS           (Spectrograph)
+        * TRIPLESEC     (Spectrograph)
+        * NICFPS        (Spectrograph)
 
-    Attributes:
-        efficiency(object): UnivariateInterpolatedSpline of instrument efficiency.
-        readout_noise(float): Value of instrument readout noise
-        filter_num(int): Number of filters for instrument
-        gain(float): Gain of instrument
-        """
+    Parameters
+    -----------
+    Instr_name : (str)
+        The name of the instrument used.
+
+    Attributes
+    ----------
+    efficiency: Interpolated Object
+        UnivariateInterpolatedSpline of the instrument efficiency.
+
+    readout_noise : float
+        Value of instrument readout noise.
+
+    filter_num : int
+        Number of filters for the instrument.
+
+    gain : float
+        Gain of the instrument.
+
+    scale : float
+        The plate scale of the instrument.
+    """
 
     def __init__(self, Instr_name):
 
@@ -309,11 +527,24 @@ class Instrument:
 
 
 def s_integradeInterpolate(functions, interpolation_range):
-    """Takes multiple interpolation objects and multiplies them together then reinterpolates to output a single
-    interpolation object
-    :param functions:
-    :param interpolation_range:
-    :return:
+    """The integrand of the count equation.
+
+    This objects takes in all of the interpolated objects that goes into the count equation (sky transmission, sky
+    emission, telescope throughput, instrument effiency, etc.) and multiplies them together. It then re-interpolates it
+    based on the specified interpolation range.
+
+    Parameters
+    ----------
+    functions : arr-like
+        List of interpolated objects to go into the count equation.
+
+    interpolation_range : tuple
+        The range that wish you to interpolate over.
+
+    Returns
+    -------
+    interpolation_range, x : tuple
+        Tuple where the first element is the interpolation range and the second element is the re-interpolated object.
 
 
     """
