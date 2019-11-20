@@ -37,63 +37,6 @@
 <div class="section" id="the-inputs-module">
 <h2>The <code class="docutils literal notranslate"><span class="pre">inputs</span></code> Module<a class="headerlink" href="#the-inputs-module" title="Permalink to this headline">¶</a></h2>
 <p>The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import <code class="docutils literal notranslate"><span class="pre">APOExptime</span></code>, it automatically imports the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> module. In this manner, you only need to call <code class="docutils literal notranslate"><span class="pre">inputs.class</span></code> when using the module. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> class.</p>
-<dl class="class">
-<dt id="APOExptime.inputs.Instrument">
-<em class="property">class </em><code class="sig-prename descclassname">APOExptime.inputs.</code><code class="sig-name descname">Instrument</code><span class="sig-paren">(</span><em class="sig-param">Instr_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/APOExptime/inputs.html#Instrument"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#APOExptime.inputs.Instrument" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Instantiates an object of the Instrument class. This object will contain all the attributes of the selected
-instrument</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>Instr_name</strong> (<em>str</em>) – Name of Instrument to be used.</p>
-</dd>
-</dl>
-<dl class="attribute">
-<dt id="APOExptime.inputs.Instrument.efficiency">
-<code class="sig-name descname">efficiency</code><a class="headerlink" href="#APOExptime.inputs.Instrument.efficiency" title="Permalink to this definition">¶</a></dt>
-<dd><p>UnivariateInterpolatedSpline of instrument efficiency.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="APOExptime.inputs.Instrument.readout_noise">
-<code class="sig-name descname">readout_noise</code><a class="headerlink" href="#APOExptime.inputs.Instrument.readout_noise" title="Permalink to this definition">¶</a></dt>
-<dd><p>Value of instrument readout noise</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="APOExptime.inputs.Instrument.filter_num">
-<code class="sig-name descname">filter_num</code><a class="headerlink" href="#APOExptime.inputs.Instrument.filter_num" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of filters for instrument</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="APOExptime.inputs.Instrument.gain">
-<code class="sig-name descname">gain</code><a class="headerlink" href="#APOExptime.inputs.Instrument.gain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gain of instrument</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 </div>
 
@@ -104,9 +47,6 @@ instrument</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/3_5.JPG" alt="Logo"/>
-            </a></p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Documentation</a><ul>
@@ -133,7 +73,7 @@ instrument</p>
       &copy;2019, Manny, Alexander, Bryson, Rogelio, Hasan.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

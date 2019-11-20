@@ -1,0 +1,41 @@
+Documentation
+*************
+
+The following is my best attempt to explain the structure of the package and how it works. The package only includes one module called ``inputs`` and it contains all the classes and functions necessary to be able to calculate an exposure time.
+
+The ``APOinputclasses`` Module
+===============================
+The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import ``APOExptime``, it automatically imports the ``inputs`` module. In this manner, you only need to call ``inputs.class`` when using the module. Let's take a look at the ``Instrument`` class.
+
+
+The ``Sky`` Class
+------------------
+.. autoclass:: APOinputclasses.Sky
+    :members:
+    :undoc-members:
+    :show-inheritance: bysource
+
+The ``Target`` Class
+--------------------
+.. autoclass:: APOinputclasses.Target
+    :members:
+    :undoc-members:
+    :show-inheritance: bysource
+
+The ``Instrument`` Class
+------------------------
+.. autoclass:: APOinputclasses.Instrument
+    :members:
+    :undoc-members:
+    :show-inheritance: bysource
+
+The ``Observation`` Class
+-------------------------
+.. autoclass:: APOinputclasses.Observation
+    :members:
+    :undoc-members:
+    :show-inheritance: bysource
+
+The ``s_integradeInterpolate`` Function
++++++++++++++++++++++++++++++++++++++++
+.. autofunction:: APOinputclasses.s_integradeInterpolate

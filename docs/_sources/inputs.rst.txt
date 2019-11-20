@@ -7,7 +7,7 @@ The ``inputs`` Module
 =====================
 The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import ``APOExptime``, it automatically imports the ``inputs`` module. In this manner, you only need to call ``inputs.class`` when using the module. Let's take a look at the ``Instrument`` class.
 
-.. autoclass:: APOExptime.inputs.Instrument
+.. autoclass:: APOinputclasses.Sky
     :members:
     :undoc-members:
     :show-inheritance: bysource

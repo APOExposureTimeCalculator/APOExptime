@@ -17,4 +17,4 @@ Welcome to the documentation page of the Apache Point Observatory Exposure Time 
    :caption: Contents:
 
    intro
-   inputs
+   APOinputclasses
