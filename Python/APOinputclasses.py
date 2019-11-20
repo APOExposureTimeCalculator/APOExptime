@@ -129,9 +129,10 @@ class Observation:
         self.isImager = instrument.isImager
         self.gain = instrument.gain
 
+        self.Npix = self.loadinst(instrument)
         self.counts(self.source, instrument)
         self.skycounts(self.skySED, instrument)
-        self.Npix = self.loadinst(instrument)
+
 
     def loadinst(self, instrument):
         """
@@ -142,15 +143,17 @@ class Observation:
         if self.isImager == 1:
             Npix = np.pi * ((self.seeing / 2) ** 2) / (instrument.scale ** 2)
         else:
-
+            Npix = []
             self.disp_name = instrument.disp_name
             self.chan_name = instrument.chan_name
             spec_width = instrument.spec_width
             self.spec_range = instrument.spec_range
-            if spec_width == 'slit':
-                spec_width = self.seeing/instrument.scale
+            self.disp_efficiency = instrument.disp_efficiency
+            if spec_width[0] == 'slit':
+                spec_width = self.seeing/instrument.scale[0]
 
-            Npix = spec_width*instrument.Npix_lam(range(instrument.range[0], instrument.range[1]))
+            for i, row in enumerate(instrument.disp_name):
+                Npix.append(spec_width*instrument.Npix_lam[i](range(instrument.spec_range[i][0], instrument.spec_range[i][1])))
         return Npix
 
     def skycounts(self, sky, instrument):
@@ -172,7 +175,7 @@ class Observation:
             sky_prime_dlam = []
             for i, row in enumerate(instrument.disp_name):
                 interpolationrange = range(instrument.spec_range[i][0], instrument.spec_range[i][1])
-                s_integrade = s_integradeInterpolate([sky, self.detector_qe[i], self.skyTransmission],
+                s_integrade = s_integradeInterpolate([sky, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
                                                      interpolationrange)
 
                 sky_prime_dlam.append([(self.telescope_area * (np.pi * (self.seeing / 2) ** 2) * s_integrade[1]),
@@ -205,7 +208,7 @@ class Observation:
             for i, row in enumerate(instrument.disp_name):
                 interpolationrange = range(instrument.spec_range[i][0], instrument.spec_range[i][1])
 
-                s_integrade = s_integradeInterpolate([source, self.detector_qe[i], self.skyTransmission],
+                s_integrade = s_integradeInterpolate([source, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
                                                      interpolationrange)
 
                 s_prime_dlam.append([(self.telescope_area * (1 / (h * c)) * s_integrade[1] * interpolationrange),
@@ -268,7 +271,7 @@ class Observation:
                         self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (self.s_prime_dlam[i][
                                                                                                     0] * SN * (
                                                                                                         self.gain[i] * self.rdnoise[i])) ** 2))
-                returnList.append([np.array(self.s_prime_dlam[1]), t_d_lam, self.chan_name[i], row])
+                returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam, self.chan_name[i], row])
 
         self.Time = returnList
         return returnList
@@ -302,6 +305,7 @@ class Instrument:
         spec_range = []
         spec_width = []
         Npix_lam = []
+        disp_efficiency = []
 
         if para['isImager'][0] > 0:
             for row in para['Filters']:
@@ -331,28 +335,36 @@ class Instrument:
         if para['isImager'][0] == 0:
 
             for i, chan in enumerate(para['channels']):
-                effic = ascii.read(
-                    '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + chan + '_qe.data')
-                qefficiency_wavelength = effic["col1"] * 10  # multiplied by 10 to turn to angstroms
-                qefficiency_percent = effic["col2"] / 100  # divided by 100 to turn into decimal
+                if str(chan) != '--':
+                    effic = ascii.read(
+                        '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + chan + '_qe.data')
+                    qefficiency_wavelength = effic["col1"] * 10  # multiplied by 10 to turn to angstroms
+                    qefficiency_percent = effic["col2"] / 100  # divided by 100 to turn into decimal
 
-                for i2, disp in enumerate(para[chan + '_dispersions']):
-                    disp_name.append(disp)
-                    chan_name.append(chan)
-                    spec_width.append(para['Width'][i])
-                    gain.append(para['gain'][i])
-                    scale.append(para['plate_scale[arcsec/pix]'][i])
-                    readout_noise.append(para['readoutnoise[electrons]'][i])
-                    efficiency.append(interpolate.InterpolatedUnivariateSpline(
-                        qefficiency_wavelength, qefficiency_percent))
+                    for disp in para[chan + '_dispersions']:
+                        if str(disp) != '--':
+                            disp_name.append(disp)
+                            chan_name.append(chan)
+                            spec_width.append(para['Width'][i])
+                            gain.append(para['gain'][i])
+                            scale.append(para['plate_scale[arcsec/pix]'][i])
+                            readout_noise.append(para['readoutnoise[electrons]'][i])
 
-                    dispersion = ascii.read(
-                        '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp)
-                    dispersion_interplate = interpolate.InterpolatedUnivariateSpline(dispersion['col2'],
-                                                                                     (dispersion['col1'] ** (-1)))
-                    spec_range.append([dispersion['col2'].min(), para['col2'].max()])
+                            efficiency.append(interpolate.InterpolatedUnivariateSpline(
+                                qefficiency_wavelength, qefficiency_percent))
 
-                    Npix_lam.append(dispersion_interplate)
+                            disp_effic = ascii.read(
+                                '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp + '_effic.data')
+                            disp_efficiency.append(interpolate.InterpolatedUnivariateSpline(disp_effic['col1'],
+                                                                                             (disp_effic['col2'] /100)))
+
+                            dispersion = ascii.read(
+                                '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp+ '_disp.data')
+                            dispersion_interplate = interpolate.InterpolatedUnivariateSpline(dispersion['col2'],
+                                                                                             (dispersion['col1'] ** (-1)))
+                            spec_range.append([dispersion['col2'].min(), dispersion['col2'].max()])
+
+                            Npix_lam.append(dispersion_interplate)
 
             self.disp_name = disp_name
             self.chan_name = chan_name
@@ -363,6 +375,7 @@ class Instrument:
             self.efficiency = efficiency
             self.spec_range = spec_range
             self.Npix_lam = Npix_lam
+            self.disp_efficiency = disp_efficiency
 
 
 def s_integradeInterpolate(functions, interpolation_range):
