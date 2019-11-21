@@ -3,6 +3,11 @@ import numpy as np
 
 
 def plotter(Observation):
+    """Function that plots the signal to noise ratio for various filters.
+
+    This function takes in the observation classes and plots the signal to noise ratio that was calculated by the
+    observations class.
+    """
     if Observation.isImager == 1:
         filterDATA = Observation.SN
         filterNum = len(filterDATA)
@@ -15,7 +20,7 @@ def plotter(Observation):
         barcolors = ["cornflowerblue", "green", "red", "firebrick", "maroon"]
 
         plt.figure(figsize=(10.0, 5.0))
-        plt.bar(ind, filterSN, color=barcolors, width=0.35)
+        plt.bar(ind, filterSN, color=barcolors, width=width)
         plt.ylabel(r"$\frac{S}{N}$", fontsize=18, rotation=0, labelpad=20)
         plt.xlabel(r"$\lambda$ ( $\AA$ )", fontsize=18)
         plt.title(r"$\frac{S}{N}$  vs.  $\lambda$  for " + exptime + " seconds", y=1.08, fontsize=20)
