@@ -17,7 +17,7 @@ def makeplots(Observation):
         width = 0.35  # width of SN/exptime plot bars
         width2 = 0.3  # width of noise plot bars
 
-        try:
+        if Observation[0] == 1:
             filterDATA = Observation.SN
             filterSN = [row[0] for row in filterDATA]
             filterNum = len(filterDATA)
@@ -38,12 +38,10 @@ def makeplots(Observation):
                 plt.text(ind[i], int(v) + 1, str(int(v)), horizontalalignment="center", verticalalignment="bottom",
                          fontsize=15)
             plotname = "SNfromTime" + exptime + "s.png"
+            plotname2 = "Noise" + plotname[2:]
             plt.savefig(plotname)
 
-        except:
-            continue
-
-        try:
+        if Observation[0] == 0:
             ind = np.arange(filterNum)  # the x locations for the groups
 
             plt.figure(figsize=(10.0, 5.0))
@@ -59,10 +57,12 @@ def makeplots(Observation):
                 plt.text(ind[i], int(v) + 1, str(int(v)), horizontalalignment="center", verticalalignment="bottom",
                          fontsize=15)
             plotname = "TimefromSN" + SN + ".png"
+            plotname2 = "Noise" + plotname[4:]
             plt.savefig(plotname)
 
-        except:
-            continue
+        else:
+            plotname2 = "Noise.png"
+            print("unknown method error")
 
         sourcenoise = [10, 25, 30, 20, 5.0]
         bgnoise = [15, 20, 27, 30, 45]
@@ -92,17 +92,10 @@ def makeplots(Observation):
                      fontsize=15)
         plt.grid(True)
         plt.legend(loc="upper center", bbox_to_anchor=(1.16, 0.98), fontsize=15, shadow=True)
-        if plotname.startswith("S"):
-            plotname2 = "Noise" + plotname[2:]
-        if plotname.startswith("T"):
-            plotname2 = "Noise" + plotname[4:]
-        else:
-            plotname2 = "Noise.png"
-            print("unknown plotname error")
         plt.savefig(plotname2)
 
     if Observation.isImager == 0:
-        try:
+        if Observation[0] == 1:
             plt.figure(figsize=(10.0, 5.0))
             plt.plot(x, y1, color="mediumseagreen", label=r"$\frac{S}{N}$")
             plt.title(r"$\frac{S}{N}$  vs.  $\lambda$  for " + exptime + " seconds", y=1.08, fontsize=20)
@@ -114,10 +107,7 @@ def makeplots(Observation):
             plt.grid(True)
             plt.show()
 
-        except:
-            continue
-
-        try:
+        if Observation[0] == 0:
             plt.figure(figsize=(10.0, 5.0))
             plt.plot(x, y2, color="mediumslateblue", label="Exposure Time")
             plt.title(r"Exposure Time vs.  $\lambda$  for  $\frac{S}{N}=$" + SN, y=1.08, fontsize=20)
@@ -129,8 +119,9 @@ def makeplots(Observation):
             plt.grid(True)
             plt.show()
 
-        except:
-            continue
+        else:
+            plotname2 = "Noise.png"
+            print("unknown method error")
 
         plt.figure(figsize=(10.0, 5.0))
         plt.plot(x, y1, color="green", label=r"Source")
