@@ -403,6 +403,7 @@ class Observation:
 
         att = dir(self)
         returnList = []
+        self.exptime = exptime
         if self.isImager == 1:
             for row in att:
                 if row.find('sourcecountrate') > 0:
