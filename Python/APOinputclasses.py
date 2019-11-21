@@ -292,7 +292,8 @@ class Observation:
             The number of pixels.
 
         """
-        # TODO Remove spectrograph insturment loading from here. Do after instrument values are outputed in consistant manner
+        # TODO Remove spectrograph insturment loading from here. Do after instrument values are outputed in
+        #  consistant manner
 
         # Determine whether the instrument is an imager or a spectrograph.
         if self.isImager == 1:
@@ -413,7 +414,7 @@ class Observation:
         """
         # TODO make process for imager and spectrograph the same
         att = dir(self)
-        returnList = []
+        returnList = [1]
         self.exptime = exptime
         if self.isImager == 1:
             for row in att:
@@ -454,7 +455,7 @@ class Observation:
         """
 
         att = dir(self)
-        returnList = []
+        returnList = [0]
         if self.isImager == 1:
             for row in att:
                 if row.find('sourcecountrate') > 0:
@@ -474,16 +475,11 @@ class Observation:
                 t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (
                         SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(SN ** 4 * (
                         self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (
-                                                                                                              self.s_prime_dlam[
-                                                                                                                  i][
-                                                                                                                  0] * SN * (
-                                                                                                                  self.rdnoise[
-                                                                                                                      i])) ** 2))
+                            self.s_prime_dlam[i][0] * SN * (self.rdnoise[i])) ** 2))
                 returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam, self.chan_name[i], row])
 
         self.Time = returnList
         return returnList
-    #         # PLOT SHIT HERE
 
 
 class Instrument:
@@ -626,7 +622,7 @@ def s_integradeInterpolate(functions, interpolation_range):
         The range that wish you to interpolate over.
 
     Returns ------- interpolation_range, x : tuple Tuple where the first element is the interpolation range and the
-    second element is the product array from the multiplication.
+        second element is the product array from the multiplication.
 
 
     """

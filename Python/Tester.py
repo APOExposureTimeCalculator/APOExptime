@@ -2,19 +2,19 @@
 
 # execfile('APOinputclasses.py')
 from Python.APOinputclasses import Sky, Target, Instrument, Observation
-from Python.Plotter import plotter
+#from Python.Plotter import plotter
 import matplotlib.pyplot as plt
 
 sky = Sky(lunar_phase=0, seeing=1)
-star = Target(20, 'VEGAMAG', [5000, 6000], temp=3000)
-inst1 = Instrument('TripleSpec')
+star = Target(10, 'VEGAMAG', [5000, 6000], temp=6000)
+inst1 = Instrument('NICFPS')
 
 # inst2 = Instrument('Arctic')
 
 ob1 = Observation(star, sky, inst1)
 # ob2 = Observation(star, sky, inst1)
 
-sn1 = ob1.SNfromTime(60)
+sn1 = ob1.SNfromTime(300)
 # sn2 = ob2.SNfromTime(1E11)
 
 t1 = ob1.TimefromSN(50)
