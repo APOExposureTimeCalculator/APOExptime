@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 sky = Sky(lunar_phase=0, seeing=1)
 star = Target(24.807, 'VEGAMAG', [5000, 6000], temp=6000)
-inst1 = Instrument('NICFPS')
+inst1 = Instrument('Arces')
 
 # inst2 = Instrument('Arctic')
 
