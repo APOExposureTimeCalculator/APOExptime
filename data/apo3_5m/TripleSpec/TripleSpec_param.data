@@ -1,4 +1,3 @@
-isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	Dispersion	FilterNum	Filters	Width	rangeMin	rangeMax
+isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	channels	FilterNum	Filters	Width	default_dispersions
 
-0.	24.	0.39	18	3.5	31500	0. 	None	None	9500	24600
-							
+0.	13.5.	0.39	18	3.5	default	0. 	None	slit	default

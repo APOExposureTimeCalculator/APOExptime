@@ -163,7 +163,7 @@ class Observation:
                 if row.find('filter') > 0:
                     filter_profile = getattr(instrument, row)
                     integrate_range = getattr(instrument, row.replace('filter', 'range'))
-                    interpolationrange = range(integrate_range[0], integrate_range[1])
+                    interpolationrange = range(int(integrate_range[0]), int(integrate_range[1]))
                     s_integrade = s_integradeInterpolate([sky, self.detector_qe, self.skyTransmission, filter_profile],
                                                          interpolationrange)
                     s_prime_dlam = [self.telescope_area * (np.pi * (self.seeing / 2) ** 2) * s_integrade[1],
@@ -178,9 +178,8 @@ class Observation:
                 s_integrade = s_integradeInterpolate([sky, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
                                                      interpolationrange)
 
-                sky_prime_dlam.append([(self.telescope_area * (np.pi * (self.seeing / 2) ** 2) * s_integrade[1]),
+                sky_prime_dlam.append([(self.telescope_area * (self.seeing * 1.1) * s_integrade[1]),
                                        s_integrade[0]])
-                # note, A is diffrent for spectrograph and needs to be changed
             self.sky_prime_dlam = sky_prime_dlam
 
     def counts(self, source, instrument):
@@ -192,7 +191,7 @@ class Observation:
                 if row.find('filter') > 0:
                     filter_profile = getattr(instrument, row)
                     integrate_range = getattr(instrument, row.replace('filter', 'range'))
-                    interpolationrange = range(integrate_range[0], integrate_range[1])
+                    interpolationrange = range(int(integrate_range[0]), int(integrate_range[1]))
 
                     s_integrade = s_integradeInterpolate(
                         [source, self.detector_qe, self.skyTransmission, filter_profile],
@@ -229,7 +228,7 @@ class Observation:
                     skyCount = getattr(self, row.replace('source', 'sky'))
 
                     SN = (sourceCount * exptime) / np.sqrt(sourceCount * exptime + skyCount * exptime
-                                                           + self.Npix * (self.gain * self.rdnoise) ** 2)
+                                                           + self.Npix * ( self.rdnoise) ** 2)
                     SNname = row.replace('sourcecountrate', 'SN')
                     returnList.append([SN, SNname])
 
@@ -239,7 +238,7 @@ class Observation:
             for i, row in enumerate(self.disp_name):
                 SN_d_lam = (self.s_prime_dlam[i][0] * exptime) / np.sqrt(
                     self.s_prime_dlam[i][0] * exptime + self.sky_prime_dlam[i][0] * exptime
-                    + (self.Npix[i] * (self.gain[i] * self.rdnoise[i]) ** 2))
+                    + (self.Npix[i] * (self.rdnoise[i]) ** 2))
                 returnList.append([np.array(self.s_prime_dlam[i][1]), SN_d_lam, self.chan_name[i], row])
 
         self.SN = returnList
@@ -258,7 +257,7 @@ class Observation:
 
                     t = (1. / (2. * sourceCount ** 2)) * (SN ** 2 * (sourceCount + skyCount) + np.sqrt(SN ** 4 * (
                             sourceCount + skyCount) ** 2 + 4. * self.Npix * (sourceCount * SN * (
-                        self.gain*self.rdnoise)) ** 2))
+                        self.rdnoise)) ** 2))
 
                     Tname = row.replace('sourcecountrate', 'time')
                     returnList.append([t, Tname])
@@ -270,7 +269,7 @@ class Observation:
                         SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(SN ** 4 * (
                         self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (self.s_prime_dlam[i][
                                                                                                     0] * SN * (
-                                                                                                        self.gain[i] * self.rdnoise[i])) ** 2))
+                                                                                                         self.rdnoise[i])) ** 2))
                 returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam, self.chan_name[i], row])
 
         self.Time = returnList
