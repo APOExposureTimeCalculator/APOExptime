@@ -1,11 +1,19 @@
 Documentation
 *************
-
-The following is my best attempt to explain the structure of the package and how it works. The package only includes one module called ``inputs`` and it contains all the classes and functions necessary to be able to calculate an exposure time.
+The following is the full documentation for the ``APOExptime`` package. If you have not installed the package yet,
+please visit our `github page <>`_ and follow the installation instructions. Bear in my mind that this package is
+still being updated quite frequently so the contents hereafter are subject to change.
 
 The ``APOinputclasses`` Module
 ===============================
-The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import ``APOExptime``, it automatically imports the ``inputs`` module. In this manner, you only need to call ``inputs.class`` when using the module. Let's take a look at the ``Instrument`` class.
+``APOExptime`` really has one module that take cares of all the necessary calculations to determine the exposure time
+needed to reach a desired signal to noise ratio. The ``APOinputclasses`` is primarily composed of three input classes:
+``APOinputclasses.Sky``, ``APOinputclasses.Target``, and ``APOinputclasses.Instrument``. Let's take a look at the ``Sky``
+class.
+
+The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import
+``APOExptime``, it automatically imports the ``inputs`` module. In this manner, you only need to call ``inputs.class``
+when using the module. Let's take a look at the ``Instrument`` class.
 
 
 The ``Sky`` Class
@@ -39,3 +47,11 @@ The ``Observation`` Class
 The ``s_integradeInterpolate`` Function
 +++++++++++++++++++++++++++++++++++++++
 .. autofunction:: APOinputclasses.s_integradeInterpolate
+
+The ``Plotter`` module
+======================
+.. automodule:: Plotter
+    :members:
+    :undoc-members:
+    :show-inheritance: bysource
+

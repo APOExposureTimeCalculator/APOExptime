@@ -33,10 +33,18 @@
             
   <div class="section" id="documentation">
 <h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
-<p>The following is my best attempt to explain the structure of the package and how it works. The package only includes one module called <code class="docutils literal notranslate"><span class="pre">inputs</span></code> and it contains all the classes and functions necessary to be able to calculate an exposure time.</p>
+<p>The following is the full documentation for the <code class="docutils literal notranslate"><span class="pre">APOExptime</span></code> package. If you have not installed the package yet,
+please visit our <a href="#id1"><span class="problematic" id="id2">`github page &lt;&gt;`_</span></a> and follow the installation instructions. Bear in my mind that this package is
+still being updated quite frequently so the contents hereafter are subject to change.</p>
 <div class="section" id="the-apoinputclasses-module">
 <h2>The <code class="docutils literal notranslate"><span class="pre">APOinputclasses</span></code> Module<a class="headerlink" href="#the-apoinputclasses-module" title="Permalink to this headline">¶</a></h2>
-<p>The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import <code class="docutils literal notranslate"><span class="pre">APOExptime</span></code>, it automatically imports the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> module. In this manner, you only need to call <code class="docutils literal notranslate"><span class="pre">inputs.class</span></code> when using the module. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> class.</p>
+<p><code class="docutils literal notranslate"><span class="pre">APOExptime</span></code> really has one module that take cares of all the necessary calculations to determine the exposure time
+needed to reach a desired signal to noise ratio. The <code class="docutils literal notranslate"><span class="pre">APOinputclasses</span></code> is primarily composed of three input classes:
+<code class="docutils literal notranslate"><span class="pre">APOinputclasses.Sky</span></code>, <code class="docutils literal notranslate"><span class="pre">APOinputclasses.Target</span></code>, and <code class="docutils literal notranslate"><span class="pre">APOinputclasses.Instrument</span></code>. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Sky</span></code>
+class.</p>
+<p>The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import
+<code class="docutils literal notranslate"><span class="pre">APOExptime</span></code>, it automatically imports the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> module. In this manner, you only need to call <code class="docutils literal notranslate"><span class="pre">inputs.class</span></code>
+when using the module. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> class.</p>
 <div class="section" id="the-sky-class">
 <h3>The <code class="docutils literal notranslate"><span class="pre">Sky</span></code> Class<a class="headerlink" href="#the-sky-class" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
@@ -53,7 +61,7 @@ from the airmass, and the emission of the sky is based on the lunar phase.</p>
 </dd>
 <dt><strong>seeing</strong><span class="classifier">float, optional</span></dt><dd><p>The seeing. This parameter is used to calculate the background area in the S/N ratio equation.  Defaults to 1</p>
 </dd>
-<dt><strong>airmass</strong><span class="classifier">float, optional</span></dt><dd><p>The airmass of the target. Large observatories typically have an airmass ~ 1. Defaults to 1.</p>
+<dt><strong>airmass</strong><span class="classifier">float, optional</span></dt><dd><p>The airmass of the target. Max airmass handled is 3 Defaults to 1.</p>
 </dd>
 </dl>
 </dd>
@@ -63,11 +71,11 @@ from the airmass, and the emission of the sky is based on the lunar phase.</p>
 </dd>
 <dt><strong>airmass</strong><span class="classifier">float</span></dt><dd><p>The airmass. This parameter is related to the altitude of the target.</p>
 </dd>
-<dt><strong>seeing</strong><span class="classifier">float</span></dt><dd><p>The seeing parameter. For large aperature telescopes, this is typically 1 arcsecond.</p>
+<dt><strong>seeing</strong><span class="classifier">float</span></dt><dd><p>The seeing parameter. For large aperature telescopes, this is typically 1 arcsecond. Defaults to 1 arcsecond</p>
 </dd>
-<dt><strong>sky_transmission</strong><span class="classifier">Interpolated Object</span></dt><dd><p>The transmission of the sky interpolated over a predetermined wavelength range.</p>
+<dt><strong>sky_transmission</strong><span class="classifier">Interpolated Object</span></dt><dd><p>The transmission of the sky interpolated from 3000A - 30000A.</p>
 </dd>
-<dt><strong>sky_emission</strong><span class="classifier">Interpolated Object</span></dt><dd><p>The emission of the sky interpolated over a predetermined wavelength range</p>
+<dt><strong>sky_emission</strong><span class="classifier">Interpolated Object</span></dt><dd><p>The emission of the sky interpolated from 3000A - 30000A</p>
 </dd>
 </dl>
 </dd>
@@ -132,16 +140,16 @@ appropriate transmission file based on the airmass.</p>
 <p>This class is intended to be used for unresolved or point source objects (i.e., stars) and we do not recommend using
 it for extended objects. The class can compute the spectrum of your target by taking the temperature and scaling a
 black body spectrum to match the specified magnitude.</p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><dl class="simple">
+<dd class="field-odd"><dl>
 <dt><strong>mag</strong><span class="classifier">float</span></dt><dd><p>The magnitude of the target object.</p>
 </dd>
-<dt><strong>magsystem</strong><span class="classifier">str</span></dt><dd><p>The magnitude system used in the <cite>mag</cite> parameter (i.e., VEGAMAG).</p>
-</dd>
-<dt><strong>filt_range</strong><span class="classifier">tuple</span></dt><dd><p>The wavelength range of the filter you wish to observe in.</p>
-</dd>
-<dt><strong>sed</strong><span class="classifier">arr, optional</span></dt><dd><p>The spectral energy distribution of the target object. Defaults to None.</p>
+<dt><strong>magsystem</strong><span class="classifier">str The magnitude system used in the <cite>mag</cite> parameter. The 3 options available are ‘VEGAMAG’, ‘stmag’,</span></dt><dd></dd>
+<dt><strong>and ‘abnu’. String IS case sensitive</strong></dt><dd></dd>
+<dt><strong>filt_range</strong><span class="classifier">tuple The wavelength range of the filter you wish to observe in. Default is wavelength range</span></dt><dd></dd>
+<dt><strong>corresponding to the Johnson V band</strong></dt><dd></dd>
+<dt><strong>sed</strong><span class="classifier">arr, optional</span></dt><dd><p>Optional ability to enter your own spectral energy distribution of the target object. Defaults to None.</p>
 </dd>
 <dt><strong>temp</strong><span class="classifier">float, optional</span></dt><dd><p>The temperature (K) of the target object which is used to compute a black body spectrum. Defaults to 5778.</p>
 </dd>
@@ -197,7 +205,7 @@ a <code class="docutils literal notranslate"><span class="pre">mag</span></code>
 <h3>The <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> Class<a class="headerlink" href="#the-instrument-class" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="APOinputclasses.Instrument">
-<em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Instrument</code><span class="sig-paren">(</span><em class="sig-param">Instr_name</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Instrument" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Instrument</code><span class="sig-paren">(</span><em class="sig-param">Instr_name</em>, <em class="sig-param">Telescope_name='apo3_5m'</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Instrument" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Object that represents the instrument used to observe.</p>
 <p>It is important to note that since this exposure time calculator is designed for the Astrophysical Research
@@ -239,7 +247,7 @@ Consortium (ARC) 3.5m telescope, the list of instruments available is exclusive 
 <h3>The <code class="docutils literal notranslate"><span class="pre">Observation</span></code> Class<a class="headerlink" href="#the-observation-class" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="APOinputclasses.Observation">
-<em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Observation</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">sky</em>, <em class="sig-param">instrument</em>, <em class="sig-param">telescope=None</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Observation" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Observation</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">sky</em>, <em class="sig-param">instrument</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Observation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Creates object for an observation given a certain telescope, instrument, sky conditions, and target.</p>
 <p>This object takes in the three classes specified above to compute a variety of things such as the signal/noise, the
@@ -271,7 +279,7 @@ count rate from the source, the count rate of the sky, etc.</p>
 </dd>
 <dt><strong>rdnoise</strong><span class="classifier">float</span></dt><dd><p>The readout noise of the instrument.</p>
 </dd>
-<dt><strong>isImager</strong><span class="classifier">bool</span></dt><dd><p>True if the object is an imager. False if it is a spectrograph.</p>
+<dt><strong>isImager</strong><span class="classifier">bool</span></dt><dd><p>1 if the object is an imager. 0 if it is a spectrograph.</p>
 </dd>
 <dt><strong>gain</strong><span class="classifier">float</span></dt><dd><p>The gain of the instrument.</p>
 </dd>
@@ -338,7 +346,8 @@ to compute Npix.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>returnList</strong><span class="classifier">arr</span></dt><dd></dd>
+<dt><strong>returnList</strong><span class="classifier">bytearray</span></dt><dd><p>Array containing signal to noise and filter/dispersion names for each filter/dispersion of instrument</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -357,7 +366,8 @@ to compute Npix.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>returnList</strong><span class="classifier">arr</span></dt><dd></dd>
+<dt><strong>returnList</strong><span class="classifier">bytearray</span></dt><dd><p>Array containing Exposure time and filter/dispersion names for each filter/dispersion of instrument</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -403,9 +413,9 @@ to compute Npix.</p>
 <dt id="APOinputclasses.s_integradeInterpolate">
 <code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">s_integradeInterpolate</code><span class="sig-paren">(</span><em class="sig-param">functions</em>, <em class="sig-param">interpolation_range</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.s_integradeInterpolate" title="Permalink to this definition">¶</a></dt>
 <dd><p>The integrand of the count equation.</p>
-<p>This objects takes in all of the interpolated objects that goes into the count equation (sky transmission, sky
-emission, telescope throughput, instrument effiency, etc.) and multiplies them together. It then re-interpolates it
-based on the specified interpolation range.</p>
+<p>This objects takes in all of the interpolated objects that goes into the count equation (sky transmission,
+sky emission, telescope throughput, instrument effiency, etc.) and multiplies them together. It then Outputs an
+array with the values of the product vs wavelength</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
@@ -413,12 +423,8 @@ based on the specified interpolation range.</p>
 </dd>
 <dt><strong>interpolation_range</strong><span class="classifier">tuple</span></dt><dd><p>The range that wish you to interpolate over.</p>
 </dd>
-</dl>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>interpolation_range, x</strong><span class="classifier">tuple</span></dt><dd><p>Tuple where the first element is the interpolation range and the second element is the re-interpolated object.</p>
-</dd>
+<dt><strong>Returns ——- interpolation_range, x</strong><span class="classifier">tuple Tuple where the first element is the interpolation range and the</span></dt><dd></dd>
+<dt><strong>second element is the product array from the multiplication.</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
@@ -426,6 +432,17 @@ based on the specified interpolation range.</p>
 
 </div>
 </div>
+</div>
+<div class="section" id="module-Plotter">
+<span id="the-plotter-module"></span><h2>The <code class="docutils literal notranslate"><span class="pre">Plotter</span></code> module<a class="headerlink" href="#module-Plotter" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="Plotter.plotter">
+<code class="sig-prename descclassname">Plotter.</code><code class="sig-name descname">plotter</code><span class="sig-paren">(</span><em class="sig-param">Observation</em><span class="sig-paren">)</span><a class="headerlink" href="#Plotter.plotter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function that plots the signal to noise ratio for various filters.</p>
+<p>This function takes in the observation classes and plots the signal to noise ratio that was calculated by the
+observations class.</p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -452,6 +469,7 @@ based on the specified interpolation range.</p>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-Plotter">The <code class="docutils literal notranslate"><span class="pre">Plotter</span></code> module</a></li>
 </ul>
 </li>
 </ul>
@@ -474,7 +492,7 @@ based on the specified interpolation range.</p>
       &copy;2019, Manny, Alexander, Bryson, Rogelio, Hasan.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
