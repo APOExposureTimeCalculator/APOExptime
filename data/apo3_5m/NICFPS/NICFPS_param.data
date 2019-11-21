@@ -1,0 +1,10 @@
+isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	Dispersion	FilterNum	Filters
+
+1.	18.	0.273	30	2.94	N/A	5. 	UKIDSS_H_filter.dat
+							UKIDSS_J_filter.dat
+							UKIDSS_K_filter.dat
+							UKIDSS_Y_filter.dat
+							UKIDSS_Z_filter.dat
+
+
+
