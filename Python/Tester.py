@@ -6,8 +6,8 @@ from Python.Plotter import plotter
 import matplotlib.pyplot as plt
 
 sky = Sky(lunar_phase=0, seeing=1)
-star = Target(20, 'VEGAMAG', [5000, 6000], temp=15000)
-inst1 = Instrument('Arctic')
+star = Target(20, 'VEGAMAG', [5000, 6000], temp=3000)
+inst1 = Instrument('TripleSpec')
 
 # inst2 = Instrument('Arctic')
 
@@ -26,4 +26,4 @@ t1 = ob1.TimefromSN(50)
 # plt.plot(times[0], times[1])
 
 
-plotter(ob1)
+#plotter(ob1)

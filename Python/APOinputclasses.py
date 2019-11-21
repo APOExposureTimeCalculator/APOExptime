@@ -24,7 +24,7 @@ class Sky:
         The seeing. This parameter is used to calculate the background area in the S/N ratio equation.  Defaults to 1
 
     airmass : float, optional
-        The airmass of the target. Large observatories typically have an airmass ~ 1. Defaults to 1.
+        The airmass of the target. Max airmass handled is 3 Defaults to 1.
 
     Attributes
     ----------
@@ -36,13 +36,13 @@ class Sky:
         The airmass. This parameter is related to the altitude of the target.
 
     seeing : float
-        The seeing parameter. For large aperature telescopes, this is typically 1 arcsecond.
+        The seeing parameter. For large aperature telescopes, this is typically 1 arcsecond. Defaults to 1 arcsecond
 
     sky_transmission : Interpolated Object
-        The transmission of the sky interpolated over a predetermined wavelength range.
+        The transmission of the sky interpolated from 3000A - 30000A.
 
     sky_emission : Interpolated Object
-        The emission of the sky interpolated over a predetermined wavelength range
+        The emission of the sky interpolated from 3000A - 30000A
 
     """
 
@@ -130,14 +130,14 @@ class Target:
     mag : float
         The magnitude of the target object.
 
-    magsystem : str
-        The magnitude system used in the `mag` parameter (i.e., VEGAMAG).
+    magsystem : str The magnitude system used in the `mag` parameter. The 3 options available are 'VEGAMAG', 'stmag',
+    and 'abnu'. String IS case sensitive
 
-    filt_range : tuple
-        The wavelength range of the filter you wish to observe in.
+    filt_range : tuple The wavelength range of the filter you wish to observe in. Default is wavelength range
+    corresponding to the Johnson V band
 
     sed : arr, optional
-        The spectral energy distribution of the target object. Defaults to None.
+        Optional ability to enter your own spectral energy distribution of the target object. Defaults to None.
 
     temp : float, optional
         The temperature (K) of the target object which is used to compute a black body spectrum. Defaults to 5778.
@@ -249,13 +249,15 @@ class Observation:
         The readout noise of the instrument.
 
     isImager : bool
-        True if the object is an imager. False if it is a spectrograph.
+        1 if the object is an imager. 0 if it is a spectrograph.
 
     gain : float
         The gain of the instrument.
     """
 
-    def __init__(self, target, sky, instrument, telescope=None):
+    def __init__(self, target, sky, instrument):
+
+        # TODO Redo value loading from objects to be more streamline and the same for spectrograph and imager
 
         # telescope_transm = telescope.transmission
         self.detector_qe = instrument.efficiency
@@ -268,11 +270,11 @@ class Observation:
         self.isImager = instrument.isImager
         self.gain = instrument.gain
 
-        self.Npix = self.loadinst(instrument)
+        self.Npix = self.Npix(instrument)
         self.counts(self.source, instrument)
         self.skycounts(self.skySED, instrument)
 
-    def loadinst(self, instrument):
+    def Npix(self, instrument):
         """The number of pixels covered by the source and sky.
 
         The number of pixels is used to compute the area covered by the sky on the detector as well as the amount of
@@ -290,6 +292,7 @@ class Observation:
             The number of pixels.
 
         """
+        # TODO Remove spectrograph insturment loading from here. Do after instrument values are outputed in consistant manner
 
         # Determine whether the instrument is an imager or a spectrograph.
         if self.isImager == 1:
@@ -302,10 +305,11 @@ class Observation:
             self.spec_range = instrument.spec_range
             self.disp_efficiency = instrument.disp_efficiency
             if spec_width[0] == 'slit':
-                spec_width = self.seeing/instrument.scale[0]
+                spec_width = self.seeing / instrument.scale[0]
 
             for i, row in enumerate(instrument.disp_name):
-                Npix.append(spec_width*instrument.Npix_lam[i](range(instrument.spec_range[i][0], instrument.spec_range[i][1])))
+                Npix.append(spec_width * instrument.Npix_lam[i](
+                    range(instrument.spec_range[i][0], instrument.spec_range[i][1])))
         # Return Npix
         return Npix
 
@@ -339,8 +343,9 @@ class Observation:
             sky_prime_dlam = []
             for i, row in enumerate(instrument.disp_name):
                 interpolationrange = range(instrument.spec_range[i][0], instrument.spec_range[i][1])
-                s_integrade = s_integradeInterpolate([sky, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
-                                                     interpolationrange)
+                s_integrade = s_integradeInterpolate(
+                    [sky, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
+                    interpolationrange)
 
                 sky_prime_dlam.append([(self.telescope_area * (self.seeing * 1.1) * s_integrade[1]),
                                        s_integrade[0]])
@@ -357,6 +362,9 @@ class Observation:
         instrument : object
             The ``APOinputclasses.Instrument`` class.
         """
+        # TODO make spectrograph and instrument count calcuating the same function, only changing the output to be an
+        #  extra integrate step for mager
+
         att = dir(instrument)
         h = 6.626 * 10 ** (-27)  # ergs*s
         c = 2.9979 * 10 ** (18)  # A/s
@@ -381,12 +389,14 @@ class Observation:
             for i, row in enumerate(instrument.disp_name):
                 interpolationrange = range(instrument.spec_range[i][0], instrument.spec_range[i][1])
 
-                s_integrade = s_integradeInterpolate([source, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
-                                                     interpolationrange)
+                s_integrade = s_integradeInterpolate(
+                    [source, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
+                    interpolationrange)
 
                 s_prime_dlam.append([(self.telescope_area * (1 / (h * c)) * s_integrade[1] * interpolationrange),
                                      s_integrade[0]])
             self.s_prime_dlam = s_prime_dlam
+
     def SNfromTime(self, exptime):
         """Computes the signal to noise ratio for a given exposure time.
 
@@ -397,10 +407,11 @@ class Observation:
 
         Returns
         --------
-        returnList : arr
+        returnList : bytearray
+            Array containing signal to noise and filter/dispersion names for each filter/dispersion of instrument
 
         """
-
+        # TODO make process for imager and spectrograph the same
         att = dir(self)
         returnList = []
         self.exptime = exptime
@@ -411,7 +422,7 @@ class Observation:
                     skyCount = getattr(self, row.replace('source', 'sky'))
 
                     SN = (sourceCount * exptime) / np.sqrt(sourceCount * exptime + skyCount * exptime
-                                                           + self.Npix * ( self.rdnoise) ** 2)
+                                                           + self.Npix * (self.rdnoise) ** 2)
                     SNname = row.replace('sourcecountrate', 'SN')
                     returnList.append([SN, SNname])
 
@@ -427,7 +438,6 @@ class Observation:
         self.SN = returnList
         return returnList
 
-
     def TimefromSN(self, SN):
         """Computes the exposure time need to achieve a desired signal to noise ratio.
 
@@ -438,7 +448,8 @@ class Observation:
 
         Returns
         --------
-        returnList : arr
+        returnList : bytearray
+            Array containing Exposure time and filter/dispersion names for each filter/dispersion of instrument
 
         """
 
@@ -462,9 +473,12 @@ class Observation:
             for i, row in enumerate(self.disp_name):
                 t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (
                         SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(SN ** 4 * (
-                        self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (self.s_prime_dlam[i][
-                                                                                                    0] * SN * (
-                                                                                                         self.rdnoise[i])) ** 2))
+                        self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (
+                                                                                                              self.s_prime_dlam[
+                                                                                                                  i][
+                                                                                                                  0] * SN * (
+                                                                                                                  self.rdnoise[
+                                                                                                                      i])) ** 2))
                 returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam, self.chan_name[i], row])
 
         self.Time = returnList
@@ -531,7 +545,7 @@ class Instrument:
                 filt_interpolated = interpolate.InterpolatedUnivariateSpline(
                     filt_wavelength, filt_throughput)
                 setattr(Instrument, data_name, filt_interpolated)
-
+                # TODO change output so it's an array and not an attribute for every filter
                 filt_range = [filt["col1"][0], filt["col1"][len(filt["col1"]) - 1]]
                 range_name = row.split('filter.dat')[0] + 'range'
                 setattr(Instrument, range_name, filt_range)
@@ -571,12 +585,13 @@ class Instrument:
                             disp_effic = ascii.read(
                                 '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp + '_effic.data')
                             disp_efficiency.append(interpolate.InterpolatedUnivariateSpline(disp_effic['col1'],
-                                                                                             (disp_effic['col2'] /100)))
+                                                                                            (disp_effic['col2'] / 100)))
 
                             dispersion = ascii.read(
-                                '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp+ '_disp.data')
+                                '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp + '_disp.data')
                             dispersion_interplate = interpolate.InterpolatedUnivariateSpline(dispersion['col2'],
-                                                                                             (dispersion['col1'] ** (-1)))
+                                                                                             (dispersion['col1'] ** (
+                                                                                                 -1)))
                             spec_range.append([dispersion['col2'].min(), dispersion['col2'].max()])
 
                             Npix_lam.append(dispersion_interplate)
@@ -591,14 +606,16 @@ class Instrument:
             self.spec_range = spec_range
             self.Npix_lam = Npix_lam
             self.disp_efficiency = disp_efficiency
+    # TODO clean instrument attributes so that imager and spectrograph use same outputs. Should make it more concise
+    #  and easier to follow. Possiably make more outputs arrays
 
 
 def s_integradeInterpolate(functions, interpolation_range):
     """The integrand of the count equation.
 
-    This objects takes in all of the interpolated objects that goes into the count equation (sky transmission, sky
-    emission, telescope throughput, instrument effiency, etc.) and multiplies them together. It then re-interpolates it
-    based on the specified interpolation range.
+    This objects takes in all of the interpolated objects that goes into the count equation (sky transmission,
+    sky emission, telescope throughput, instrument effiency, etc.) and multiplies them together. It then Outputs an
+    array with the values of the product vs wavelength
 
     Parameters
     ----------
@@ -608,10 +625,8 @@ def s_integradeInterpolate(functions, interpolation_range):
     interpolation_range : tuple
         The range that wish you to interpolate over.
 
-    Returns
-    -------
-    interpolation_range, x : tuple
-        Tuple where the first element is the interpolation range and the second element is the re-interpolated object.
+    Returns ------- interpolation_range, x : tuple Tuple where the first element is the interpolation range and the
+    second element is the product array from the multiplication.
 
 
     """
