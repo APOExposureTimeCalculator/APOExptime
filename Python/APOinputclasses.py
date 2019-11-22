@@ -292,8 +292,8 @@ class Observation:
             The number of pixels.
 
         """
-        # TODO Remove spectrograph insturment loading from here. Do after instrument values are outputed in
-        #  consistant manner
+        # TODO Remove spectrograph instrument loading from here. Do after instrument values are outputted in
+        #  consistent manner
 
         # Determine whether the instrument is an imager or a spectrograph.
         if self.isImager == 1:
@@ -363,7 +363,7 @@ class Observation:
         instrument : object
             The ``APOinputclasses.Instrument`` class.
         """
-        # TODO make spectrograph and instrument count calcuating the same function, only changing the output to be an
+        # TODO make spectrograph and instrument count calculating the same function, only changing the output to be an
         #  extra integrate step for mager
 
         att = dir(instrument)
@@ -621,7 +621,10 @@ def s_integradeInterpolate(functions, interpolation_range):
     interpolation_range : tuple
         The range that wish you to interpolate over.
 
-    Returns ------- interpolation_range, x : tuple Tuple where the first element is the interpolation range and the
+    Returns
+    -------
+    interpolation_range, x : tuple
+        Tuple where the first element is the interpolation range and the
         second element is the product array from the multiplication.
 
 

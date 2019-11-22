@@ -5,6 +5,19 @@ from matplotlib import cm
 
 
 def makeplots(Observation):
+    """Function to visualize the output of the ``APOinputclasses.Observation`` class.
+
+    This function has different outputs based on whether the instrument used is a spectrograph or an imager. For an
+    imager, the function will output a bar plot that shows the S/N per bandpass and a plot that shows the different
+    noise sources as a function of wavelength. If it is a spectrograph, then the function will plot the S/N per
+    wavelength and it also plots the noise sources as a function of wavelength.
+
+    Parameters
+    -----------
+    Observation : object
+        The ``APOinputclasses.Observation``class.
+
+    """
     if Observation.isImager == 1:
 
         # Set colors
