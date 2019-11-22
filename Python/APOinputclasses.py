@@ -414,7 +414,7 @@ class Observation:
         """
         # TODO make process for imager and spectrograph the same
         att = dir(self)
-        returnList = [1]
+        returnList = []
         self.exptime = exptime
         if self.isImager == 1:
             for row in att:
@@ -455,7 +455,8 @@ class Observation:
         """
 
         att = dir(self)
-        returnList = [0]
+        returnList = []
+        self.SigToNoise = SN
         if self.isImager == 1:
             for row in att:
                 if row.find('sourcecountrate') > 0:

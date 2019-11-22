@@ -1,5 +1,5 @@
 isImager	pix_size[10^-6m]	plate_scale[arcsec/pix]	readoutnoise[electrons]	gain	channels	FilterNum	Filters	Width	Red_dispersions	Blue_dispersions
 
-0.	13.5.	0.42	4.6	1.88	Red	0. 	None	slit	R830	B400
-0.	13.5.	0.42	4.9	1.68	Blue	0	None	slit	R300	B1200
-									R1200	
+0.	13.5.	0.42	4.6	1.88	Red	0. 	None	slit	R300	B400
+0.	13.5.	0.42	4.9	1.68	Blue	0	None	slit	R1200	B1200
+										
