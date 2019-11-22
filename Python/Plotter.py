@@ -119,7 +119,7 @@ def makeplots(Observation, type):
             fig.suptitle(r"Observation Parameters for S/N = " + SN, y=0.95, weight="bold", fontsize=25)
             plt.subplots_adjust(hspace=0.3)
             ax1 = fig.add_subplot(2, 1, 1)
-            ax2 = fig.add_subplot(2, 1, 2)
+            #ax2 = fig.add_subplot(2, 1, 2)
 
             ax1.bar(ind, filterTime, color=hexvals, edgecolor="black", width=width)
             ax1.set_xlabel(r"$\lambda$ ( $\AA$ )", fontsize=18)
@@ -144,7 +144,7 @@ def makeplots(Observation, type):
 
             median = []
             fig = plt.figure(figsize=(10.0, 14.0))
-            fig.suptitle(r"Observation Parameters for a " + SN + " s Exposure", y=0.95, weight="bold", fontsize=25)
+            fig.suptitle(r"Observation Parameters for  SN = " + SN, y=0.95, weight="bold", fontsize=25)
             plt.subplots_adjust(hspace=0.3)
             ax1 = fig.add_subplot(2, 1, 1)
             #ax2 = fig.add_subplot(2, 1, 2)

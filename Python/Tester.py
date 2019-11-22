@@ -9,13 +9,12 @@ sky = Sky(lunar_phase=0, seeing=1)
 star = Target(19, 'VEGAMAG', [5000, 6000], temp=6000)
 inst1 = Instrument('Arctic')
 
-# inst2 = Instrument('Arctic')
 
 ob1 = Observation(star, sky, inst1)
-# ob2 = Observation(star, sky, inst1)
+
 
 sn1 = ob1.SNfromTime(200)
-# sn2 = ob2.SNfromTime(1E11)
+
 
 t1 = ob1.TimefromSN(50)
 
