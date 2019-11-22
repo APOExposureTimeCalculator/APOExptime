@@ -34,19 +34,19 @@
   <div class="section" id="documentation">
 <h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
 <p>The following is the full documentation for the <code class="docutils literal notranslate"><span class="pre">APOExptime</span></code> package. If you have not installed the package yet,
-please visit our <a href="#id1"><span class="problematic" id="id2">`github page &lt;&gt;`_</span></a> and follow the installation instructions. Bear in my mind that this package is
-still being updated quite frequently so the contents hereafter are subject to change.</p>
+please visit our <a class="reference external" href="https://github.com/APOExposureTimeCalculator/APOExptime">github page</a> and follow the installation
+instructions. Bear in my mind that this package is updated quite frequently so the contents hereafter are subject to
+change.</p>
 <div class="section" id="the-apoinputclasses-module">
 <h2>The <code class="docutils literal notranslate"><span class="pre">APOinputclasses</span></code> Module<a class="headerlink" href="#the-apoinputclasses-module" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">APOExptime</span></code> really has one module that take cares of all the necessary calculations to determine the exposure time
-needed to reach a desired signal to noise ratio. The <code class="docutils literal notranslate"><span class="pre">APOinputclasses</span></code> is primarily composed of three input classes:
-<code class="docutils literal notranslate"><span class="pre">APOinputclasses.Sky</span></code>, <code class="docutils literal notranslate"><span class="pre">APOinputclasses.Target</span></code>, and <code class="docutils literal notranslate"><span class="pre">APOinputclasses.Instrument</span></code>. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Sky</span></code>
-class.</p>
-<p>The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import
-<code class="docutils literal notranslate"><span class="pre">APOExptime</span></code>, it automatically imports the <code class="docutils literal notranslate"><span class="pre">inputs</span></code> module. In this manner, you only need to call <code class="docutils literal notranslate"><span class="pre">inputs.class</span></code>
-when using the module. Let’s take a look at the <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> class.</p>
+needed to achieve a desired signal to noise ratio. The <code class="docutils literal notranslate"><span class="pre">APOinputclasses</span></code> is primarily composed of four classes:
+the <code class="docutils literal notranslate"><span class="pre">Sky</span></code> class, the <code class="docutils literal notranslate"><span class="pre">Target</span></code>, the <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> class, and the <code class="docutils literal notranslate"><span class="pre">Observation</span></code> class. Let’s take a look at the
+<code class="docutils literal notranslate"><span class="pre">Sky</span></code> class.</p>
 <div class="section" id="the-sky-class">
 <h3>The <code class="docutils literal notranslate"><span class="pre">Sky</span></code> Class<a class="headerlink" href="#the-sky-class" title="Permalink to this headline">¶</a></h3>
+<p>The Sky class is in charged of calculating the signal received from the sky. This includes the emission coming from the
+moon and the transmission allowed by the atmosphere.</p>
 <dl class="class">
 <dt id="APOinputclasses.Sky">
 <em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Sky</code><span class="sig-paren">(</span><em class="sig-param">lunar_phase=0</em>, <em class="sig-param">seeing=1</em>, <em class="sig-param">airmass=1</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Sky" title="Permalink to this definition">¶</a></dt>
@@ -132,6 +132,8 @@ appropriate transmission file based on the airmass.</p>
 </div>
 <div class="section" id="the-target-class">
 <h3>The <code class="docutils literal notranslate"><span class="pre">Target</span></code> Class<a class="headerlink" href="#the-target-class" title="Permalink to this headline">¶</a></h3>
+<p>The Target class is in charged of calculating the total signal coming from the target. It assumes that the target is an
+unresolved source that behaves like a blackbody of a given temperature.</p>
 <dl class="class">
 <dt id="APOinputclasses.Target">
 <em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Target</code><span class="sig-paren">(</span><em class="sig-param">mag</em>, <em class="sig-param">magsystem</em>, <em class="sig-param">filt_range</em>, <em class="sig-param">sed=None</em>, <em class="sig-param">temp=5778</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Target" title="Permalink to this definition">¶</a></dt>
@@ -203,6 +205,9 @@ a <code class="docutils literal notranslate"><span class="pre">mag</span></code>
 </div>
 <div class="section" id="the-instrument-class">
 <h3>The <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> Class<a class="headerlink" href="#the-instrument-class" title="Permalink to this headline">¶</a></h3>
+<p>The Instrument class takes care of the signal coming from the detector itself. It also stores properties pertaining to
+the ARC 3.5m telescope. The Instrument class also takes care of the transmission allowed by the available filters
+(assuming you are using an imager).</p>
 <dl class="class">
 <dt id="APOinputclasses.Instrument">
 <em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Instrument</code><span class="sig-paren">(</span><em class="sig-param">Instr_name</em>, <em class="sig-param">Telescope_name='apo3_5m'</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Instrument" title="Permalink to this definition">¶</a></dt>
@@ -245,6 +250,10 @@ Consortium (ARC) 3.5m telescope, the list of instruments available is exclusive 
 </div>
 <div class="section" id="the-observation-class">
 <h3>The <code class="docutils literal notranslate"><span class="pre">Observation</span></code> Class<a class="headerlink" href="#the-observation-class" title="Permalink to this headline">¶</a></h3>
+<p>The Observation class is in charged of calculating the signal to noise ratio as well as determining the exposure time
+needed to achieve a desired signal to noise ratio class. Its inputs include the three classes mentioned above. This
+class is capable of calculating an exposure time for a desired signal to noise ratio and can also calculate the signal
+to noise ratio for a given exposure time.</p>
 <dl class="class">
 <dt id="APOinputclasses.Observation">
 <em class="property">class </em><code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">Observation</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">sky</em>, <em class="sig-param">instrument</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.Observation" title="Permalink to this definition">¶</a></dt>
@@ -407,40 +416,29 @@ to compute Npix.</p>
 
 </dd></dl>
 
-<div class="section" id="the-s-integradeinterpolate-function">
-<h4>The <code class="docutils literal notranslate"><span class="pre">s_integradeInterpolate</span></code> Function<a class="headerlink" href="#the-s-integradeinterpolate-function" title="Permalink to this headline">¶</a></h4>
-<dl class="function">
-<dt id="APOinputclasses.s_integradeInterpolate">
-<code class="sig-prename descclassname">APOinputclasses.</code><code class="sig-name descname">s_integradeInterpolate</code><span class="sig-paren">(</span><em class="sig-param">functions</em>, <em class="sig-param">interpolation_range</em><span class="sig-paren">)</span><a class="headerlink" href="#APOinputclasses.s_integradeInterpolate" title="Permalink to this definition">¶</a></dt>
-<dd><p>The integrand of the count equation.</p>
-<p>This objects takes in all of the interpolated objects that goes into the count equation (sky transmission,
-sky emission, telescope throughput, instrument effiency, etc.) and multiplies them together. It then Outputs an
-array with the values of the product vs wavelength</p>
+</div>
+</div>
+<div class="section" id="the-plotter-module">
+<h2>The <code class="docutils literal notranslate"><span class="pre">Plotter</span></code> module<a class="headerlink" href="#the-plotter-module" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Plotter</span></code> module includes a single function, appropriately named <code class="docutils literal notranslate"><span class="pre">makeplots</span></code>. The plots you see will depend on
+whether you use a spectrograph or an imager but is nonetheless useful for visualizing the results of the <code class="docutils literal notranslate"><span class="pre">Observation</span></code>
+object.</p>
+<span class="target" id="module-Plotter"></span><dl class="function">
+<dt id="Plotter.makeplots">
+<code class="sig-prename descclassname">Plotter.</code><code class="sig-name descname">makeplots</code><span class="sig-paren">(</span><em class="sig-param">Observation</em><span class="sig-paren">)</span><a class="headerlink" href="#Plotter.makeplots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to visualize the output of the <code class="docutils literal notranslate"><span class="pre">APOinputclasses.Observation</span></code> class.</p>
+<p>This function has different outputs based on whether the instrument used is a spectrograph or an imager. For an
+imager, the function will output a bar plot that shows the S/N per bandpass and a plot that shows the different
+noise sources as a function of wavelength. If it is a spectrograph, then the function will plot the S/N per
+wavelength and it also plots the noise sources as a function of wavelength.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>functions</strong><span class="classifier">arr-like</span></dt><dd><p>List of interpolated objects to go into the count equation.</p>
+<dt><strong>Observation</strong><span class="classifier">object</span></dt><dd><p>The <a href="#id1"><span class="problematic" id="id2">``</span></a>APOinputclasses.Observation``class.</p>
 </dd>
-<dt><strong>interpolation_range</strong><span class="classifier">tuple</span></dt><dd><p>The range that wish you to interpolate over.</p>
-</dd>
-<dt><strong>Returns ——- interpolation_range, x</strong><span class="classifier">tuple Tuple where the first element is the interpolation range and the</span></dt><dd></dd>
-<dt><strong>second element is the product array from the multiplication.</strong></dt><dd></dd>
 </dl>
 </dd>
 </dl>
-</dd></dl>
-
-</div>
-</div>
-</div>
-<div class="section" id="module-Plotter">
-<span id="the-plotter-module"></span><h2>The <code class="docutils literal notranslate"><span class="pre">Plotter</span></code> module<a class="headerlink" href="#module-Plotter" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="Plotter.plotter">
-<code class="sig-prename descclassname">Plotter.</code><code class="sig-name descname">plotter</code><span class="sig-paren">(</span><em class="sig-param">Observation</em><span class="sig-paren">)</span><a class="headerlink" href="#Plotter.plotter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Function that plots the signal to noise ratio for various filters.</p>
-<p>This function takes in the observation classes and plots the signal to noise ratio that was calculated by the
-observations class.</p>
 </dd></dl>
 
 </div>
@@ -463,13 +461,10 @@ observations class.</p>
 <li><a class="reference internal" href="#the-sky-class">The <code class="docutils literal notranslate"><span class="pre">Sky</span></code> Class</a></li>
 <li><a class="reference internal" href="#the-target-class">The <code class="docutils literal notranslate"><span class="pre">Target</span></code> Class</a></li>
 <li><a class="reference internal" href="#the-instrument-class">The <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> Class</a></li>
-<li><a class="reference internal" href="#the-observation-class">The <code class="docutils literal notranslate"><span class="pre">Observation</span></code> Class</a><ul>
-<li><a class="reference internal" href="#the-s-integradeinterpolate-function">The <code class="docutils literal notranslate"><span class="pre">s_integradeInterpolate</span></code> Function</a></li>
+<li><a class="reference internal" href="#the-observation-class">The <code class="docutils literal notranslate"><span class="pre">Observation</span></code> Class</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li><a class="reference internal" href="#module-Plotter">The <code class="docutils literal notranslate"><span class="pre">Plotter</span></code> module</a></li>
+<li><a class="reference internal" href="#the-plotter-module">The <code class="docutils literal notranslate"><span class="pre">Plotter</span></code> module</a></li>
 </ul>
 </li>
 </ul>

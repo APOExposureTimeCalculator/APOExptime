@@ -1,23 +1,22 @@
 Documentation
 *************
 The following is the full documentation for the ``APOExptime`` package. If you have not installed the package yet,
-please visit our `github page <>`_ and follow the installation instructions. Bear in my mind that this package is
-still being updated quite frequently so the contents hereafter are subject to change.
+please visit our `github page <https://github.com/APOExposureTimeCalculator/APOExptime>`_ and follow the installation
+instructions. Bear in my mind that this package is updated quite frequently so the contents hereafter are subject to
+change.
 
 The ``APOinputclasses`` Module
 ===============================
 ``APOExptime`` really has one module that take cares of all the necessary calculations to determine the exposure time
-needed to reach a desired signal to noise ratio. The ``APOinputclasses`` is primarily composed of three input classes:
-``APOinputclasses.Sky``, ``APOinputclasses.Target``, and ``APOinputclasses.Instrument``. Let's take a look at the ``Sky``
-class.
-
-The inputs module contains all of the classes and functions you need to calculate an exposure time. When you import
-``APOExptime``, it automatically imports the ``inputs`` module. In this manner, you only need to call ``inputs.class``
-when using the module. Let's take a look at the ``Instrument`` class.
-
+needed to achieve a desired signal to noise ratio. The ``APOinputclasses`` is primarily composed of four classes:
+the ``Sky`` class, the ``Target``, the ``Instrument`` class, and the ``Observation`` class. Let's take a look at the
+``Sky`` class.
 
 The ``Sky`` Class
 ------------------
+The Sky class is in charged of calculating the signal received from the sky. This includes the emission coming from the
+moon and the transmission allowed by the atmosphere.
+
 .. autoclass:: APOinputclasses.Sky
     :members:
     :undoc-members:
@@ -25,6 +24,9 @@ The ``Sky`` Class
 
 The ``Target`` Class
 --------------------
+The Target class is in charged of calculating the total signal coming from the target. It assumes that the target is an
+unresolved source that behaves like a blackbody of a given temperature.
+
 .. autoclass:: APOinputclasses.Target
     :members:
     :undoc-members:
@@ -32,6 +34,10 @@ The ``Target`` Class
 
 The ``Instrument`` Class
 ------------------------
+The Instrument class takes care of the signal coming from the detector itself. It also stores properties pertaining to
+the ARC 3.5m telescope. The Instrument class also takes care of the transmission allowed by the available filters
+(assuming you are using an imager).
+
 .. autoclass:: APOinputclasses.Instrument
     :members:
     :undoc-members:
@@ -39,17 +45,22 @@ The ``Instrument`` Class
 
 The ``Observation`` Class
 -------------------------
+The Observation class is in charged of calculating the signal to noise ratio as well as determining the exposure time
+needed to achieve a desired signal to noise ratio class. Its inputs include the three classes mentioned above. This
+class is capable of calculating an exposure time for a desired signal to noise ratio and can also calculate the signal
+to noise ratio for a given exposure time.
+
 .. autoclass:: APOinputclasses.Observation
     :members:
     :undoc-members:
     :show-inheritance: bysource
 
-The ``s_integradeInterpolate`` Function
-+++++++++++++++++++++++++++++++++++++++
-.. autofunction:: APOinputclasses.s_integradeInterpolate
-
 The ``Plotter`` module
 ======================
+The ``Plotter`` module includes a single function, appropriately named ``makeplots``. The plots you see will depend on
+whether you use a spectrograph or an imager but is nonetheless useful for visualizing the results of the ``Observation``
+object.
+
 .. automodule:: Plotter
     :members:
     :undoc-members:

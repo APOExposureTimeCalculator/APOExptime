@@ -34,23 +34,32 @@
             
   <div class="section" id="about-the-package">
 <h1>About the Package<a class="headerlink" href="#about-the-package" title="Permalink to this headline">¶</a></h1>
-<p>This package was motivated by the Observational Techniques class taught by Jon Holtzman at New Mexico State University and was designed by graduate students in the Astronomy Department at NMSU. The package is designed to work only with the Astrophysical Research Consortium (ARC) 3.5m telescope and it’s respective instruments. The purpose of the package is to be able to calculate the exposure time needed in order to reach a desired signal to noise.</p>
+<p>This package was motivated by the Observational Techniques class taught by Jon Holtzman at New Mexico State University
+and was designed by graduate students in the Astronomy Department at NMSU. The package is designed to work only with the
+Astrophysical Research Consortium (ARC) 3.5m telescope and it’s respective instruments. The purpose of the package is to
+be able to calculate the exposure time needed in order to reach a desired signal to noise.</p>
 <div class="section" id="limitations">
 <h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">¶</a></h2>
-<p>The package is currently designed to work only with the ARC 3.5m telescope, though there are plans to make it more versatile. In any case, the package currently works for the arctic imager and for the TRIPLESPEC spectrograh. As this is the first package we’ve ever built, there is still much work being done to imporve the functionality and structure of the package.</p>
+<p>The package is currently designed to work only with the ARC 3.5m telescope, though there are plans to make it more
+versatile. In any case, the package currently works for all the instruments available at APO. As this is the first
+package we’ve ever built, there is still much work being done to improve the functionality and structure of the package.</p>
 </div>
 <div class="section" id="installing-apoexptime">
 <h2>Installing APOExptime<a class="headerlink" href="#installing-apoexptime" title="Permalink to this headline">¶</a></h2>
-<p>The APOExptime package can be found our <a class="reference external" href="https://github.com/APOExposureTimeCalculator/APOExptime">github page</a>. Clone or download the repository and <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the main directory (containing setup.py file). Once you are in that directory, simply run the following command:</p>
+<p>The APOExptime package can be found our <a class="reference external" href="https://github.com/APOExposureTimeCalculator/APOExptime">github page</a>.
+Clone or download the repository and <code class="docutils literal notranslate"><span class="pre">cd</span></code> into the main directory (containing setup.py file).Once you are in that
+directory, simply run the following command:</p>
 <p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">./</span></code></p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <dl class="simple">
-<dt>You must have the following packages in order for APOExptime to work:</dt><dd><p>numpy,
-matplotlib,
-scipy,
-synphot,
-astropy.</p>
+<dt>You must have the following packages in order for APOExptime to work::</dt><dd><ul class="simple">
+<li><p>numpy</p></li>
+<li><p>matplotlib</p></li>
+<li><p>scipy</p></li>
+<li><p>synphot</p></li>
+<li><p>astropy</p></li>
+</ul>
 </dd>
 </dl>
 </div>
