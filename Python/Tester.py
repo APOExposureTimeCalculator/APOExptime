@@ -3,7 +3,6 @@
 # execfile('APOinputclasses.py')
 from Python.APOinputclasses import Sky, Target, Instrument, Observation
 from Python.Plotter import makeplots
-import matplotlib.pyplot as plt
 
 sky = Sky(lunar_phase=0, seeing=1)
 star = Target(19, 'VEGAMAG', [5000, 6000], temp=6000)

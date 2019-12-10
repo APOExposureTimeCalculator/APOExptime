@@ -108,7 +108,7 @@ class Sky:
             emission_file = 'moon_100.txt'
 
         # Load the data files
-        emission = np.loadtxt('../data/sky/' + emission_file)
+        emission = np.loadtxt('../data/Sky/' + emission_file)
 
         # Interpolate
         sky_emission = interpolate.InterpolatedUnivariateSpline(
