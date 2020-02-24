@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import yaml
 from synphot.models import BlackBody1D
 from synphot import units
 from astropy import units as u
@@ -260,7 +260,8 @@ class Observation:
         # TODO Redo value loading from objects to be more streamline and the same for spectrograph and imager
 
         # telescope_transm = telescope.transmission
-        self.detector_qe = instrument.efficiency
+        self.q_efficiencies = instrument.efficiencies
+        self.InstTransmission = instrument.transmissions
         self.telescope_area = (175 ** 2) * np.pi
         self.source = target.F_lambda
         self.skySED = sky.sky_emission
@@ -268,13 +269,18 @@ class Observation:
         self.seeing = sky.seeing
         self.rdnoise = instrument.readout_noise
         self.isImager = instrument.isImager
-        self.gain = instrument.gain
+        self.elements = instrument.element_num
+        self.names = instrument.names
+        self.scale = instrument.scale
+        self.slit_height = instrument.slit_height
+        self.ranges = instrument.range
+        self.Npix_lam = instrument.Npix_lam
 
-        self.Npix = self.Npix(instrument)
+        self.Npix, self.seeing_area = self.Npix()
         self.counts(self.source, instrument)
         self.skycounts(self.skySED, instrument)
 
-    def Npix(self, instrument):
+    def Npix(self):
         """The number of pixels covered by the source and sky.
 
         The number of pixels is used to compute the area covered by the sky on the detector as well as the amount of
@@ -292,27 +298,26 @@ class Observation:
             The number of pixels.
 
         """
-        # TODO Remove spectrograph instrument loading from here. Do after instrument values are outputted in
-        #  consistent manner
 
         # Determine whether the instrument is an imager or a spectrograph.
-        if self.isImager == 1:
-            Npix = np.pi * ((self.seeing / 2) ** 2) / (instrument.scale ** 2)
-        else:
-            Npix = []
-            self.disp_name = instrument.disp_name
-            self.chan_name = instrument.chan_name
-            spec_width = instrument.spec_width
-            self.spec_range = instrument.spec_range
-            self.disp_efficiency = instrument.disp_efficiency
-            if spec_width[0] == 'slit':
-                spec_width = self.seeing / instrument.scale[0]
+        seeing_area = []
+        Npix = []
 
-            for i, row in enumerate(instrument.disp_name):
-                Npix.append(spec_width * instrument.Npix_lam[i](
-                    range(instrument.spec_range[i][0], instrument.spec_range[i][1])))
-        # Return Npix
-        return Npix
+        for i, row in enumerate(self.ranges):
+            if self.isImager == 1:
+                s = np.pi * ((self.seeing / 2) ** 2)  # set blur size for count equation
+                Npix.append(s / (self.scale ** 2))
+            else:
+                s = self.seeing ** 2  # Slit should be about seeing size anyway
+                spec_width = self.slit_height
+                if self.slit_height[0] == 'slit':  # If its the echell, then just use hieght of slit in pixels,
+                    # otherwise set height in slit to be set by seeing
+                    spec_height = self.seeing / self.scale
+                Npix.append(spec_height * self.Npix_lam[i](range(row[0], self.row[1])))
+
+            seeing_area.append(s)
+
+        return Npix, seeing_area
 
     def skycounts(self, sky, instrument):
         """Computes the amount of counts received by the sky.
@@ -326,31 +331,16 @@ class Observation:
             The ``APOinputclasses.Instrument`` class.
 
         """
-        att = dir(instrument)
-        if self.isImager == 1:
-            for row in att:
-                if row.find('filter') > 0:
-                    filter_profile = getattr(instrument, row)
-                    integrate_range = getattr(instrument, row.replace('filter', 'range'))
-                    interpolationrange = range(int(integrate_range[0]), int(integrate_range[1]))
-                    s_integrade = s_integradeInterpolate([sky, self.detector_qe, self.skyTransmission, filter_profile],
-                                                         interpolationrange)
-                    s_prime_dlam = [self.telescope_area * (np.pi * (self.seeing / 2) ** 2) * s_integrade[1],
-                                    s_integrade[0]]
-                    s_prime = np.trapz(s_prime_dlam[0], s_prime_dlam[1])
-                    count_name = row.replace('_filter', '') + '_skycountrate'
-                    setattr(Observation, count_name, s_prime)
-        else:
-            sky_prime_dlam = []
-            for i, row in enumerate(instrument.disp_name):
-                interpolationrange = range(instrument.spec_range[i][0], instrument.spec_range[i][1])
-                s_integrade = s_integradeInterpolate(
-                    [sky, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
-                    interpolationrange)
 
-                sky_prime_dlam.append([(self.telescope_area * (self.seeing * 1.1) * s_integrade[1]),
-                                       s_integrade[0]])
-            self.sky_prime_dlam = sky_prime_dlam
+        sky_prime_dlam = []
+        for i, row in enumerate(self.names):
+            s_integrand = InterpolationMultiplier(
+                [sky, self.q_efficiencies[i], self.skyTransmission, self.InstTransmission[i]],
+                self.ranges[i])
+
+            sky_prime_dlam.append([self.telescope_area * self.seeing_area[i] * s_integrand[1], s_integrand[0]])
+
+        self.sky_prime_dlam = sky_prime_dlam
 
     def counts(self, source, instrument):
         """The counts received from the source.
@@ -366,37 +356,17 @@ class Observation:
         # TODO make spectrograph and instrument count calculating the same function, only changing the output to be an
         #  extra integrate step for mager
 
-        att = dir(instrument)
         h = 6.626 * 10 ** (-27)  # ergs*s
         c = 2.9979 * 10 ** (18)  # A/s
-        if self.isImager == 1:
-            for row in att:
-                if row.find('filter') > 0:
-                    filter_profile = getattr(instrument, row)
-                    integrate_range = getattr(instrument, row.replace('filter', 'range'))
-                    interpolationrange = range(int(integrate_range[0]), int(integrate_range[1]))
+        s_prime_dlam = []
+        for i, row in enumerate(self.names):
+            s_integrand = InterpolationMultiplier(
+                [source, self.q_efficiencies[i], self.skyTransmission, self.InstTransmission[i]],
+                self.ranges[i])
 
-                    s_integrade = s_integradeInterpolate(
-                        [source, self.detector_qe, self.skyTransmission, filter_profile],
-                        interpolationrange)
+            s_prime_dlam.append([self.telescope_area * (1 / (h * c)) * s_integrand[1], s_integrand[0]])
 
-                    s_prime_dlam = [(self.telescope_area * (1 / (h * c)) * s_integrade[1] * interpolationrange),
-                                    s_integrade[0]]
-                    s_prime = np.trapz(s_prime_dlam[0], s_prime_dlam[1])
-                    count_name = row.replace('_filter', '') + '_sourcecountrate'
-                    setattr(Observation, count_name, s_prime)
-        else:
-            s_prime_dlam = []
-            for i, row in enumerate(instrument.disp_name):
-                interpolationrange = range(instrument.spec_range[i][0], instrument.spec_range[i][1])
-
-                s_integrade = s_integradeInterpolate(
-                    [source, self.detector_qe[i], self.skyTransmission, self.disp_efficiency[i]],
-                    interpolationrange)
-
-                s_prime_dlam.append([(self.telescope_area * (1 / (h * c)) * s_integrade[1] * interpolationrange),
-                                     s_integrade[0]])
-            self.s_prime_dlam = s_prime_dlam
+        self.s_prime_dlam = s_prime_dlam
 
     def SNfromTime(self, exptime):
         """Computes the signal to noise ratio for a given exposure time.
@@ -412,29 +382,20 @@ class Observation:
             Array containing signal to noise and filter/dispersion names for each filter/dispersion of instrument
 
         """
-        # TODO make process for imager and spectrograph the same
-        att = dir(self)
         returnList = []
-        self.exptime = exptime
-        if self.isImager == 1:
-            for row in att:
-                if row.find('sourcecountrate') > 0:
-                    sourceCount = getattr(self, row)
-                    skyCount = getattr(self, row.replace('source', 'sky'))
 
-                    SN = (sourceCount * exptime) / np.sqrt(sourceCount * exptime + skyCount * exptime
-                                                           + self.Npix * (self.rdnoise) ** 2)
-                    SNname = row.replace('sourcecountrate', 'SN')
-                    returnList.append([SN, SNname])
-
-                    setattr(Observation, SNname, SN)
-
-        else:
-            for i, row in enumerate(self.disp_name):
-                SN_d_lam = (self.s_prime_dlam[i][0] * exptime) / np.sqrt(
-                    self.s_prime_dlam[i][0] * exptime + self.sky_prime_dlam[i][0] * exptime
-                    + (self.Npix[i] * (self.rdnoise[i]) ** 2))
-                returnList.append([np.array(self.s_prime_dlam[i][1]), SN_d_lam, self.chan_name[i], row])
+        for i, row in enumerate(self.names):
+            if self.isImager == 0:
+                SN_d_lam = (self.s_prime_dlam[i][0] * exptime) / np.sqrt(self.s_prime_dlam[i][0] * exptime +
+                                                                         self.sky_prime_dlam[i][0] * exptime +
+                                                                         (self.Npix[i] * (self.rdnoise[i]) ** 2))
+                returnList.append([np.array(self.s_prime_dlam[i][1]), SN_d_lam, row])
+            else:
+                s_prime = np.trapz(self.s_prime_dlam[i][0], self.s_prime_dlam[i][1])
+                sky_prime = np.trapz(self.sky_prime_dlam[i][0], self.sky_prime_dlam[i][1])
+                SN = (s_prime * exptime) / np.sqrt(s_prime * exptime + sky_prime * exptime
+                                                   + self.Npix[i] * self.rdnoise ** 2)
+                returnList.append([SN, row])
 
         self.SN = returnList
         return returnList
@@ -454,30 +415,18 @@ class Observation:
 
         """
 
-        att = dir(self)
         returnList = []
-        self.SigToNoise = SN
-        if self.isImager == 1:
-            for row in att:
-                if row.find('sourcecountrate') > 0:
-                    sourceCount = getattr(self, row)
-                    skyCount = getattr(self, row.replace('source', 'sky'))
 
-                    t = (1. / (2. * sourceCount ** 2)) * (SN ** 2 * (sourceCount + skyCount) + np.sqrt(SN ** 4 * (
-                            sourceCount + skyCount) ** 2 + 4. * self.Npix * (sourceCount * SN * (
-                        self.rdnoise)) ** 2))
+        for i, row in enumerate(self.names):
+            if self.isImager == 0:
+                t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(SN ** 4 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (self.s_prime_dlam[i][0] * SN * (self.rdnoise[i])) ** 2))
+                returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam,  row])
+            else:
+                s_prime = np.trapz(self.s_prime_dlam[i][0], self.s_prime_dlam[i][1])
+                sky_prime = np.trapz(self.sky_prime_dlam[i][0], self.sky_prime_dlam[i][1])
+                t = (1. / (2. * s_prime ** 2)) * (SN ** 2 * (s_prime + sky_prime) + np.sqrt(SN ** 4 * (s_prime + sky_prime) ** 2 + 4. * self.Npix[i] * (s_prime * SN * (self.rdnoise)) ** 2))
+                returnList.append([t,  row])
 
-                    Tname = row.replace('sourcecountrate', 'time')
-                    returnList.append([t, Tname])
-
-                    setattr(Observation, Tname, t)
-        else:
-            for i, row in enumerate(self.disp_name):
-                t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (
-                        SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(SN ** 4 * (
-                        self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (
-                            self.s_prime_dlam[i][0] * SN * (self.rdnoise[i])) ** 2))
-                returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam, self.chan_name[i], row])
 
         self.Time = returnList
         return returnList
@@ -520,94 +469,45 @@ class Instrument:
 
     def __init__(self, Instr_name, Telescope_name='apo3_5m'):
 
-        para = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_param.data')
-        self.isImager = para['isImager'][0]
-        chan_name = []
-        disp_name = []
-        gain = []
-        efficiency = []
-        scale = []
-        readout_noise = []
-        spec_range = []
-        spec_width = []
+        with open(r'../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_param.yaml') as file:
+            param = yaml.full_load(file)
+        self.isImager = param['isImager']
+        self.readout_noise = param['readoutnoise[electrons]']
+        self.scale = param['plate_scale[arcsec/pix]']
+        self.slit_height = param['Slit_height']
+        self.element_num = param['filter/dispersion_Num']
+
+        names = []
+
+        efficiencies = []
+        transmissions = []
+        range = []
         Npix_lam = []
-        disp_efficiency = []
 
-        if para['isImager'][0] > 0:
-            for row in para['Filters']:
-                filt = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + row)
-                data_name = row.split('.dat')[0]
-                filt_wavelength = filt["col1"]
-                filt_throughput = filt["col2"]
-                filt_interpolated = interpolate.InterpolatedUnivariateSpline(
-                    filt_wavelength, filt_throughput)
-                setattr(Instrument, data_name, filt_interpolated)
-                # TODO change output so it's an array and not an attribute for every filter
-                filt_range = [filt["col1"][0], filt["col1"][len(filt["col1"]) - 1]]
-                range_name = row.split('filter.dat')[0] + 'range'
-                setattr(Instrument, range_name, filt_range)
-            efficiency = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_qe.data')
+        for row in param['filters/dispersions']:
+            names.append(row[0])
+            transmission = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + row[0])
+            q_efficiency = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + row[1])
 
-            qefficiency_wavelength = efficiency["col1"] * 10  # multiplied by 10 to turn to angstroms
-            qefficiency_percent = efficiency["col2"] / 100  # divided by 100 to turn into decimal
+            efficiencies.append(
+                interpolate.InterpolatedUnivariateSpline(q_efficiency['col1'] * 10, q_efficiency["col2"] / 100))
+            transmissions.append(interpolate.InterpolatedUnivariateSpline(transmission['col1'], transmission["col2"]))
+            range.append([transmission['col1'].min(), transmission['col1'].max()])
 
-            self.efficiency = interpolate.InterpolatedUnivariateSpline(
-                qefficiency_wavelength, qefficiency_percent)
-            self.readout_noise = para['readoutnoise[electrons]'][0]
-            self.filter_num = para['FilterNum'][0]
-            self.gain = para['gain'][0]
-            self.scale = para['plate_scale[arcsec/pix]'][0]
+            if param['isImager'] == 0:
+                dispersion_file = row.split('_effic.data')[0] + '_disp.data'
+                dispersion = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + dispersion_file)
+                Npix_lam.append(interpolate.InterpolatedUnivariateSpline(dispersion['col2'],
+                                                                         (dispersion['col1'] ** (-1))))
 
-        if para['isImager'][0] == 0:
-
-            for i, chan in enumerate(para['channels']):
-                if str(chan) != '--':
-                    effic = ascii.read(
-                        '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + chan + '_qe.data')
-                    qefficiency_wavelength = effic["col1"] * 10  # multiplied by 10 to turn to angstroms
-                    qefficiency_percent = effic["col2"] / 100  # divided by 100 to turn into decimal
-
-                    for disp in para[chan + '_dispersions']:
-                        if str(disp) != '--':
-                            disp_name.append(disp)
-                            chan_name.append(chan)
-                            spec_width.append(para['Width'][i])
-                            gain.append(para['gain'][i])
-                            scale.append(para['plate_scale[arcsec/pix]'][i])
-                            readout_noise.append(para['readoutnoise[electrons]'][i])
-
-                            efficiency.append(interpolate.InterpolatedUnivariateSpline(
-                                qefficiency_wavelength, qefficiency_percent))
-
-                            disp_effic = ascii.read(
-                                '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp + '_effic.data')
-                            disp_efficiency.append(interpolate.InterpolatedUnivariateSpline(disp_effic['col1'],
-                                                                                            (disp_effic['col2'] / 100)))
-
-                            dispersion = ascii.read(
-                                '../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_' + disp + '_disp.data')
-                            dispersion_interplate = interpolate.InterpolatedUnivariateSpline(dispersion['col2'],
-                                                                                             (dispersion['col1'] ** (
-                                                                                                 -1)))
-                            spec_range.append([dispersion['col2'].min(), dispersion['col2'].max()])
-
-                            Npix_lam.append(dispersion_interplate)
-
-            self.disp_name = disp_name
-            self.chan_name = chan_name
-            self.spec_width = spec_width
-            self.gain = gain
-            self.scale = scale
-            self.readout_noise = readout_noise
-            self.efficiency = efficiency
-            self.spec_range = spec_range
+            self.transmissions = transmissions
+            self.names = names
+            self.efficiencies = efficiencies
+            self.range = range
             self.Npix_lam = Npix_lam
-            self.disp_efficiency = disp_efficiency
-    # TODO clean instrument attributes so that imager and spectrograph use same outputs. Should make it more concise
-    #  and easier to follow. Possiably make more outputs arrays
 
 
-def s_integradeInterpolate(functions, interpolation_range):
+def InterpolationMultiplier(functions, interpolation_range):
     """The integrand of the count equation.
 
     This objects takes in all of the interpolated objects that goes into the count equation (sky transmission,
@@ -630,9 +530,10 @@ def s_integradeInterpolate(functions, interpolation_range):
 
 
     """
+    r = range(interpolation_range[0], interpolation_range[1])
     for i, f in enumerate(functions):
         if i == 0:
-            x = np.ones(len(interpolation_range))
-        x = f(interpolation_range) * x
+            x = np.ones(len(r))
+        x = f(r) * x
 
-    return [interpolation_range, x]
+    return [r, x]
