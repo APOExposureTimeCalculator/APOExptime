@@ -309,11 +309,11 @@ class Observation:
                 Npix.append(s / (self.scale ** 2))
             else:
                 s = self.seeing ** 2  # Slit should be about seeing size anyway
-                spec_width = self.slit_height
-                if self.slit_height[0] == 'slit':  # If its the echell, then just use hieght of slit in pixels,
+                spec_height = self.slit_height
+                if self.slit_height == 'slit':  # If its the echell, then just use hieght of slit in pixels,
                     # otherwise set height in slit to be set by seeing
                     spec_height = self.seeing / self.scale
-                Npix.append(spec_height * self.Npix_lam[i](range(row[0], self.row[1])))
+                Npix.append(spec_height * self.Npix_lam[i](range(int(row[0]), int(row[1]))))
 
             seeing_area.append(s)
 
@@ -353,8 +353,6 @@ class Observation:
         instrument : object
             The ``APOinputclasses.Instrument`` class.
         """
-        # TODO make spectrograph and instrument count calculating the same function, only changing the output to be an
-        #  extra integrate step for mager
 
         h = 6.626 * 10 ** (-27)  # ergs*s
         c = 2.9979 * 10 ** (18)  # A/s
@@ -364,7 +362,7 @@ class Observation:
                 [source, self.q_efficiencies[i], self.skyTransmission, self.InstTransmission[i]],
                 self.ranges[i])
 
-            s_prime_dlam.append([self.telescope_area * (1 / (h * c)) * s_integrand[1], s_integrand[0]])
+            s_prime_dlam.append([self.telescope_area * (1 / (h * c)) * s_integrand[1] * s_integrand[0], s_integrand[0]])
 
         self.s_prime_dlam = s_prime_dlam
 
@@ -388,7 +386,7 @@ class Observation:
             if self.isImager == 0:
                 SN_d_lam = (self.s_prime_dlam[i][0] * exptime) / np.sqrt(self.s_prime_dlam[i][0] * exptime +
                                                                          self.sky_prime_dlam[i][0] * exptime +
-                                                                         (self.Npix[i] * (self.rdnoise[i]) ** 2))
+                                                                         (self.Npix[i] * self.rdnoise ** 2))
                 returnList.append([np.array(self.s_prime_dlam[i][1]), SN_d_lam, row])
             else:
                 s_prime = np.trapz(self.s_prime_dlam[i][0], self.s_prime_dlam[i][1])
@@ -419,14 +417,17 @@ class Observation:
 
         for i, row in enumerate(self.names):
             if self.isImager == 0:
-                t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(SN ** 4 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (self.s_prime_dlam[i][0] * SN * (self.rdnoise[i])) ** 2))
-                returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam,  row])
+                t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (
+                            SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(
+                    SN ** 4 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (
+                            self.s_prime_dlam[i][0] * SN * self.rdnoise) ** 2))
+                returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam, row])
             else:
                 s_prime = np.trapz(self.s_prime_dlam[i][0], self.s_prime_dlam[i][1])
                 sky_prime = np.trapz(self.sky_prime_dlam[i][0], self.sky_prime_dlam[i][1])
-                t = (1. / (2. * s_prime ** 2)) * (SN ** 2 * (s_prime + sky_prime) + np.sqrt(SN ** 4 * (s_prime + sky_prime) ** 2 + 4. * self.Npix[i] * (s_prime * SN * (self.rdnoise)) ** 2))
-                returnList.append([t,  row])
-
+                t = (1. / (2. * s_prime ** 2)) * (SN ** 2 * (s_prime + sky_prime) + np.sqrt(
+                    SN ** 4 * (s_prime + sky_prime) ** 2 + 4. * self.Npix[i] * (s_prime * SN * self.rdnoise) ** 2))
+                returnList.append([t, row])
 
         self.Time = returnList
         return returnList
@@ -478,24 +479,24 @@ class Instrument:
         self.element_num = param['filter/dispersion_Num']
 
         names = []
-
         efficiencies = []
         transmissions = []
-        range = []
+        lambda_range = []
         Npix_lam = []
 
         for row in param['filters/dispersions']:
-            names.append(row[0])
+            names.append(row[0].split('.data')[0])
             transmission = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + row[0])
             q_efficiency = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + row[1])
 
             efficiencies.append(
                 interpolate.InterpolatedUnivariateSpline(q_efficiency['col1'] * 10, q_efficiency["col2"] / 100))
-            transmissions.append(interpolate.InterpolatedUnivariateSpline(transmission['col1'], transmission["col2"]))
-            range.append([transmission['col1'].min(), transmission['col1'].max()])
+            transmissions.append(
+                interpolate.InterpolatedUnivariateSpline(transmission['col1'], transmission["col2"] / 100))
+            lambda_range.append([transmission['col1'].min(), transmission['col1'].max()])
 
             if param['isImager'] == 0:
-                dispersion_file = row.split('_effic.data')[0] + '_disp.data'
+                dispersion_file = row[0].split('_effic.data')[0] + '_disp.data'
                 dispersion = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + dispersion_file)
                 Npix_lam.append(interpolate.InterpolatedUnivariateSpline(dispersion['col2'],
                                                                          (dispersion['col1'] ** (-1))))
@@ -503,7 +504,7 @@ class Instrument:
             self.transmissions = transmissions
             self.names = names
             self.efficiencies = efficiencies
-            self.range = range
+            self.range = lambda_range
             self.Npix_lam = Npix_lam
 
 
@@ -530,7 +531,7 @@ def InterpolationMultiplier(functions, interpolation_range):
 
 
     """
-    r = range(interpolation_range[0], interpolation_range[1])
+    r = range(int(interpolation_range[0]), int(interpolation_range[1]))
     for i, f in enumerate(functions):
         if i == 0:
             x = np.ones(len(r))
