@@ -151,7 +151,7 @@ class Target:
         The magnitude system used in the `mag` parameter (i.e., VEGAMAG).
 
     filt_range : tuple
-        The wavelength range of the filter you wish to observe in.
+        The wavelength range of the filter you wish to observe in. !
 
     sed : arr, optional
         The spectral energy distribution of the target object.
