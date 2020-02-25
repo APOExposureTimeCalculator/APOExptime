@@ -2,7 +2,7 @@ APOETC
 ======
 This package is used to calculate an exposure time based on a desired signal to noise ratio. See documentation `here <https://apoexposuretimecalculator.github.io/APOExptime/>`_.
 
-pypi page: https://pypi.org/project/APOExptime/
+pypi page: https://pypi.org/project/APOExptime/ .
 To install, use the command 'pip install APOExptime' 
 
 For examples of the project's use, check the examples folder
