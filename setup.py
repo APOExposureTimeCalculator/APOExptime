@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
   name = 'APOExptime',         # How you named your package folder (MyLib)
   packages = ['APOExptime'],   # Chose the same as "name"
-  version = '1.1',      # Start with a small number and increase it with every change you make
+  version = '1.2',      # Start with a small number and increase it with every change you make
   license='AGPLv3',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'Exposure time calculator for Apache point observatory',   # Give a short description about your library
   author = 'Alexander Stone-Martinez',                   # Type in your name
@@ -16,7 +16,7 @@ setup(
           'scipy',
           'numpy',
           'pyyaml',
-          'wheel',
+          'wheel==0.33.1',
           'synphot'
       ],
   classifiers=[
