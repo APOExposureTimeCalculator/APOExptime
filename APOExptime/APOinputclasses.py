@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import yaml
 from synphot.models import BlackBody1D
 from synphot import units
@@ -78,7 +79,7 @@ class Sky:
             trans_file = 'trans_2_5.txt'
 
         # Load the data file
-        transmission = np.loadtxt('../data/Sky/' + trans_file)
+        transmission = np.loadtxt(get_data('Sky/' + trans_file))
 
         # Interpolate the transmission
         sky_transmission = interpolate.InterpolatedUnivariateSpline(
@@ -108,7 +109,7 @@ class Sky:
             emission_file = 'moon_100.txt'
 
         # Load the data files
-        emission = np.loadtxt('../data/Sky/' + emission_file)
+        emission = np.loadtxt(get_data('Sky/' + emission_file))
 
         # Interpolate
         sky_emission = interpolate.InterpolatedUnivariateSpline(
@@ -469,7 +470,8 @@ class Instrument:
 
     def __init__(self, Instr_name, Telescope_name='apo3_5m'):
 
-        with open(r'../data/' + Telescope_name + '/' + Instr_name + "/" + Instr_name + '_param.yaml') as file:
+        path = get_data(Telescope_name + '/' + Instr_name + "/" + Instr_name + '_param.yaml')
+        with open(r''+ path) as file:
             param = yaml.full_load(file)
         self.isImager = param['isImager']
         self.readout_noise = param['readoutnoise[electrons]']
@@ -485,8 +487,8 @@ class Instrument:
 
         for row in param['filters/dispersions']:
             names.append(row[0].split('.data')[0])
-            transmission = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + row[0])
-            q_efficiency = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + row[1])
+            transmission = ascii.read(get_data(Telescope_name + '/' + Instr_name + "/" + row[0]))
+            q_efficiency = ascii.read(get_data(Telescope_name + '/' + Instr_name + "/" + row[1]))
 
             efficiencies.append(
                 interpolate.InterpolatedUnivariateSpline(q_efficiency['col1'] * 10, q_efficiency["col2"] / 100))
@@ -496,7 +498,7 @@ class Instrument:
 
             if param['isImager'] == 0:
                 dispersion_file = row[0].split('_effic.data')[0] + '_disp.data'
-                dispersion = ascii.read('../data/' + Telescope_name + '/' + Instr_name + "/" + dispersion_file)
+                dispersion = ascii.read(get_data(Telescope_name + '/' + Instr_name + "/" + dispersion_file))
                 Npix_lam.append(interpolate.InterpolatedUnivariateSpline(dispersion['col2'],
                                                                          (dispersion['col1'] ** (-1))))
 
@@ -537,3 +539,8 @@ def InterpolationMultiplier(functions, interpolation_range):
         x = f(r) * x
 
     return [r, x]
+
+
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+def get_data(path):
+    return os.path.join(_ROOT, 'data', path)
