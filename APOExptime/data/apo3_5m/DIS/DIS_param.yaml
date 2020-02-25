@@ -1,0 +1,18 @@
+Slit_height: slit
+filter/dispersion_Num: 5
+filters/dispersions:
+- - DIS_B1200_effic.data
+  - DIS_Blue_qe.data
+- - DIS_B400_effic.data
+  - DIS_Blue_qe.data
+- - DIS_R300_effic.data
+  - DIS_Red_qe.data
+- - DIS_R830_effic.data
+  - DIS_Red_qe.data
+- - DIS_R1200_effic.data
+  - DIS_Red_qe.data
+gain: 2
+isImager: 0
+pix_size[10^-6m]: 13.5
+plate_scale[arcsec/pix]: 0.42
+readoutnoise[electrons]: 1.88

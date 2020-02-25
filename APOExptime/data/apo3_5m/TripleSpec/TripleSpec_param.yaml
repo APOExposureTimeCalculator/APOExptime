@@ -1,0 +1,10 @@
+Slit_height: slit
+filter/dispersion_Num: 1
+filters/dispersions:
+- - TripleSpec_default_effic.data
+  - TripleSpec_default_qe.data
+gain: 3.5
+isImager: 0
+pix_size[10^-6m]: 13.5
+plate_scale[arcsec/pix]: 0.39
+readoutnoise[electrons]: 18
