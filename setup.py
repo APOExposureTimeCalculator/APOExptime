@@ -16,7 +16,7 @@ setup(
           'scipy',
           'numpy',
           'pyyaml',
-          'wheel==0.33.1',
+          'wheel',
           'synphot'
       ],
   classifiers=[
