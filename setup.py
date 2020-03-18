@@ -3,13 +3,13 @@ from setuptools import setup
 setup(
   name = 'APOExptime',         # How you named your package folder (MyLib)
   packages = ['APOExptime'],   # Chose the same as "name"
-  version = '1.1.1',      # Start with a small number and increase it with every change you make
+  version = '1.2',      # Start with a small number and increase it with every change you make
   license='AGPLv3',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'Exposure time calculator for Apache point observatory',   # Give a short description about your library
   author = 'Alexander Stone-Martinez',                   # Type in your name
   author_email = 'stonemaa@nmsu.edu',      # Type in your E-Mail
   url = 'https://github.com/APOExposureTimeCalculator/APOExptime',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/APOExposureTimeCalculator/APOExptime/archive/v_1.1.2.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/APOExposureTimeCalculator/APOExptime/archive/v_1.2.tar.gz',    # I explain this later on
   keywords = ['Exposure time', 'Astronomy', 'APO'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'astropy',
