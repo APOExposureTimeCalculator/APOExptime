@@ -1,6 +1,8 @@
 Slit_height: null
 filter/dispersion_Num: 5
 filters/dispersions:
+- - uprime_filter.data
+  - Arctic_qe.data
 - - gprime_filter.data
   - Arctic_qe.data
 - - rprime_filter.data
@@ -8,8 +10,6 @@ filters/dispersions:
 - - iprime_filter.data
   - Arctic_qe.data
 - - zprime_filter.data
-  - Arctic_qe.data
-- - uprime_filter.data
   - Arctic_qe.data
 gain: 2
 isImager: 1

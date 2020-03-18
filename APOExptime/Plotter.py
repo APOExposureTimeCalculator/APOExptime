@@ -38,15 +38,15 @@ def makeplots(Observation, type):
 
             filterSN = [row[0] for row in DATA]
 
-            filter_names = [row.strip('_SN') for row in [row[1] for row in DATA]]
+            filter_names = [row.strip('_filter') for row in [row[1] for row in DATA]]
             filter_names = [row.replace('prime', "'") for row in filter_names]
 
             ind = np.arange(filterNum)  # the x locations for the bars
 
-            fig = plt.figure(figsize=(10.0, 14.0))
+            fig = plt.figure(figsize=(10.0, 10.0))
             fig.suptitle(r"Observation Parameters for a " + exptime + " s Exposure", y=0.95, weight="bold", fontsize=25)
-            plt.subplots_adjust(hspace=0.3)
-            ax1 = fig.add_subplot(2, 1, 1)
+            #plt.subplots_adjust(hspace=0.3)
+            ax1 = fig.add_subplot(1, 1, 1)
             # ax2 = fig.add_subplot(2, 1, 2)
 
             ax1.bar(ind, filterSN, color=hexvals, edgecolor="black", width=width)
@@ -72,19 +72,18 @@ def makeplots(Observation, type):
             dipersionNum = len(DATA)
             Wavelengths = [row[0] for row in DATA]
             SNs = [row[1] for row in DATA]
-            channelNames = [row[2] for row in DATA]
-            dispersionNames = [row[3] for row in DATA]
+            dispersionNames = [row[2] for row in DATA]
 
             median = []
-            fig = plt.figure(figsize=(10.0, 14.0))
+            fig = plt.figure(figsize=(10.0, 10.0))
             fig.suptitle(r"Observation Parameters for a " + exptime + " s Exposure", y=0.95, weight="bold", fontsize=25)
-            plt.subplots_adjust(hspace=0.3)
-            ax1 = fig.add_subplot(2, 1, 1)
+           # plt.subplots_adjust(hspace=0.3)
+            ax1 = fig.add_subplot(1, 1, 1)
             # ax2 = fig.add_subplot(2, 1, 2)
 
             for i, row in enumerate(dispersionNames):
                 x = Wavelengths[i]
-                y1 = SNs[i]
+                y1 = np.nan_to_num(SNs[i])
                 median.append(np.median(y1))
                 ax1.plot(x, y1, label=row)
 
@@ -115,10 +114,10 @@ def makeplots(Observation, type):
 
             filter_names1 = [row.replace('_time','') for row in [row[1] for row in DATA]]
             filter_names = [row.replace('prime', "'") for row in filter_names1]
-            fig = plt.figure(figsize=(10.0, 14.0))
+            fig = plt.figure(figsize=(10.0, 10.0))
             fig.suptitle(r"Observation Parameters for S/N = " + SN, y=0.95, weight="bold", fontsize=25)
-            plt.subplots_adjust(hspace=0.3)
-            ax1 = fig.add_subplot(2, 1, 1)
+            # plt.subplots_adjust(hspace=0.3)
+            ax1 = fig.add_subplot(1, 1, 1)
             #ax2 = fig.add_subplot(2, 1, 2)
 
             ax1.bar(ind, filterTime, color=hexvals, edgecolor="black", width=width)
@@ -139,27 +138,26 @@ def makeplots(Observation, type):
             dipersionNum = len(DATA)
             Wavelengths = [row[0] for row in DATA]
             Times = [row[1] for row in DATA]
-            channelNames = [row[2] for row in DATA]
-            dispersionNames = [row[3] for row in DATA]
+            dispersionNames = [row[2] for row in DATA]
 
             median = []
-            fig = plt.figure(figsize=(10.0, 14.0))
+            fig = plt.figure(figsize=(10.0, 10.0))
             fig.suptitle(r"Observation Parameters for  SN = " + SN, y=0.95, weight="bold", fontsize=25)
-            plt.subplots_adjust(hspace=0.3)
-            ax1 = fig.add_subplot(2, 1, 1)
+            # plt.subplots_adjust(hspace=0.3)
+            ax1 = fig.add_subplot(1, 1, 1)
             #ax2 = fig.add_subplot(2, 1, 2)
 
             for i, row in enumerate(dispersionNames):
                 x = Wavelengths[i]
-                y1 = Times[i]
+                y1 = np.nan_to_num(Times[i])
                 median.append(np.median(y1))
-                ax1.plot(x, y1, label=row)
+                ax1.scatter(x, y1, label=row)
 
             ax1.set_xlabel(r"$\lambda$ ( $\AA$ )", fontsize=18)
             ax1.set_ylabel(r"$t$ ($s$)", fontsize=18, rotation=0, labelpad=25)
             ax1.set_title(r"Exposure Time vs.  $\lambda$  for  $\frac{S}{N}=$" + SN, fontsize=20)
             ax1.tick_params(axis="both", labelsize=13)
-            ax1.set_ylim(0, 1.5 * np.max(median))
+            ax1.set_ylim(0, 2 * np.max(median))
             ax1.legend()
             ax1.grid(True)
             plt.show()

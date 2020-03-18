@@ -277,6 +277,7 @@ class Observation:
         self.slit_height = instrument.slit_height
         self.ranges = instrument.range
         self.Npix_lam = instrument.Npix_lam
+        self.name = instrument.name
 
         self.Npix, self.seeing_area = self.Npix()
         self.counts(self.source, instrument)
@@ -383,7 +384,7 @@ class Observation:
 
         """
         returnList = []
-
+        self.exptime = exptime
         for i, row in enumerate(self.names):
             if self.isImager == 0:
                 SN_d_lam = (self.s_prime_dlam[i][0] * exptime) / np.sqrt(self.s_prime_dlam[i][0] * exptime +
@@ -416,7 +417,7 @@ class Observation:
         """
 
         returnList = []
-
+        self.SigToNoise = SN
         for i, row in enumerate(self.names):
             if self.isImager == 0:
                 t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (
@@ -480,6 +481,7 @@ class Instrument:
         self.scale = param['plate_scale[arcsec/pix]']
         self.slit_height = param['Slit_height']
         self.element_num = param['filter/dispersion_Num']
+        self.name = Instr_name
 
         names = []
         efficiencies = []
