@@ -162,9 +162,11 @@ class Target:
 
     """
 
-    def __init__(self, mag, magsystem, filt_range, sed=None, temp=5778):
+    def __init__(self, mag, magsystem='VEGAMAG', filt_range=None, sed=None, temp=5778):
 
         # Define the magnitude system.
+        if filt_range is None:
+            filt_range = [5000, 6000]
         if magsystem.lower() == 'vegamag':
             sys = units.VEGAMAG
         elif magsystem.lower() == 'stmag':
@@ -438,11 +440,11 @@ class Instrument:
 
     It is important to note that since this exposure time calculator is designed for the Astrophysical Research
     Consortium (ARC) 3.5m telescope, the list of instruments available is exclusive to this telescope. That list is::
-        * ARCTIC        (Imager)
-        * AGILE         (Imager)
-        * ARCES         (Spectrograph)
+        * Arctic        (Imager)
+        * AGILE         (Imager) Not working yet
+        * Arces         (Spectrograph)
         * DIS           (Spectrograph)
-        * TRIPLESEC     (Spectrograph)
+        * TripleSpec     (Spectrograph)
         * NICFPS        (Spectrograph)
 
     Parameters
@@ -468,7 +470,7 @@ class Instrument:
         The plate scale of the instrument.
     """
 
-    def __init__(self, Instr_name, Telescope_name='apo3_5m'):
+    def __init__(self, Instr_name, Telescope_name='apo3_5m'):       # will add multi telescope support in future
 
         path = get_data(Telescope_name + '/' + Instr_name + "/" + Instr_name + '_param.yaml')
         with open(r''+ path) as file:

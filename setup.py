@@ -9,7 +9,7 @@ setup(
   author = 'Alexander Stone-Martinez',                   # Type in your name
   author_email = 'stonemaa@nmsu.edu',      # Type in your E-Mail
   url = 'https://github.com/APOExposureTimeCalculator/APOExptime',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/APOExposureTimeCalculator/APOExptime/archive/v_10.tar.gz',    # I explain this later on
+  download_url = 'https://github.com/APOExposureTimeCalculator/APOExptime/archive/v_1.1.tar.gz',    # I explain this later on
   keywords = ['Exposure time', 'Astronomy', 'APO'],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'astropy',
