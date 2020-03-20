@@ -10,6 +10,7 @@ from astropy.io import ascii
 from scipy import interpolate
 
 
+
 class Sky:
     """Object that represents the sky.
 
