@@ -161,3 +161,5 @@ def makeplots(Observation, type):
             ax1.legend()
             ax1.grid(True)
             plt.show()
+
+    return fig
