@@ -388,9 +388,9 @@ class Observation:
         self.exptime = exptime
         for i, row in enumerate(self.names):
             if self.isImager == 0:
-                SN_d_lam = (self.s_prime_dlam[i][0] * exptime) / np.sqrt(self.s_prime_dlam[i][0] * exptime +
-                                                                         self.sky_prime_dlam[i][0] * exptime +
-                                                                         (self.Npix[i] * self.rdnoise ** 2))
+                SN_d_lam = ((self.s_prime_dlam[i][0] * exptime)/self.Npix[i]) / np.sqrt((self.s_prime_dlam[i][0]/self.Npix[i]) * exptime +
+                                                                         (self.sky_prime_dlam[i][0]/self.Npix[i]) * exptime +
+                                                                         (self.rdnoise ** 2))
                 returnList.append([np.array(self.s_prime_dlam[i][1]), SN_d_lam, row])
             else:
                 s_prime = np.trapz(self.s_prime_dlam[i][0], self.s_prime_dlam[i][1])
@@ -421,10 +421,10 @@ class Observation:
         self.SigToNoise = SN
         for i, row in enumerate(self.names):
             if self.isImager == 0:
-                t_d_lam = (1. / (2. * self.s_prime_dlam[i][0] ** 2)) * (
-                            SN ** 2 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) + np.sqrt(
-                    SN ** 4 * (self.s_prime_dlam[i][0] + self.sky_prime_dlam[i][0]) ** 2 + 4. * self.Npix[i] * (
-                            self.s_prime_dlam[i][0] * SN * self.rdnoise) ** 2))
+                t_d_lam = (1. / (2. * (self.s_prime_dlam[i][0]/self.Npix[i]) ** 2)) * (
+                            SN ** 2 * ((self.s_prime_dlam[i][0]/self.Npix[i]) + (self.sky_prime_dlam[i][0]/self.Npix[i])) + np.sqrt(
+                    SN ** 4 * ((self.s_prime_dlam[i][0]/self.Npix[i]) + (self.sky_prime_dlam[i][0]/self.Npix[i])) ** 2 + 4.  * (
+                            (self.s_prime_dlam[i][0]/self.Npix[i]) * SN * self.rdnoise) ** 2))
                 returnList.append([np.array(self.s_prime_dlam[i][1]), t_d_lam, row])
             else:
                 s_prime = np.trapz(self.s_prime_dlam[i][0], self.s_prime_dlam[i][1])
